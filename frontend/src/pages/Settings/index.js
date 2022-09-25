@@ -121,21 +121,8 @@ const Settings = () => {
 							{i18n.t("settings.settings.userCreation.options.disabled")}
 						</option>
 					</Select>
-
 				</Paper>
 
-				<Paper className={classes.paper}>
-					<TextField
-						id="api-token-setting"
-						readonly
-						label="Token Api"
-						margin="dense"
-						variant="outlined"
-						fullWidth
-						value={settings && settings.length > 0 && getSettingValue("userApiToken")}
-					/>
-				</Paper>
-				
 				<Typography variant="body2" gutterBottom></Typography>
 				<Paper className={classes.paper}>
 
@@ -161,6 +148,18 @@ const Settings = () => {
 							{i18n.t("settings.settings.call.options.disabled")}
 						</option>
 					</Select>
+				</Paper>
+
+				<Paper className={classes.paper}>
+					<TextField
+						id="api-token-setting"
+						readonly
+						label="Token Api"
+						margin="dense"
+						variant="outlined"
+						fullWidth
+						value={settings && settings.length > 0 && getSettingValue("userApiToken")}
+					/>
 				</Paper>
 
 			</Container>

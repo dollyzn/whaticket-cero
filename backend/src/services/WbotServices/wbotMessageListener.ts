@@ -399,11 +399,6 @@ const handleMessage = async (
       }
     }
 
-    if(msg.type==="call_log" && callSetting==="disabled"){
-      const sentMessage = await wbot.sendMessage(`${contact.number}@c.us`, "As chamadas de voz e vídeo estão desabilitas para esse WhatsApp, favor enviar uma mensagem de texto. Obrigado");
-      await verifyMessage(sentMessage, ticket, contact);
-    }
-
     /* if (msg.type === "multi_vcard") {
       try {
         const array = msg.vCards.toString().split("\n");
@@ -464,6 +459,11 @@ const handleMessage = async (
         console.log(error);
       }
     } */
+
+    if(msg.type==="call_log" && callSetting==="disabled"){
+      const sentMessage = await wbot.sendMessage(`${contact.number}@c.us`, "*Cero:* As chamadas de voz e vídeo estão desabilitas para esse canal de atendimento por WhatsApp 🫤, por favor, envie uma mensagem de texto.");
+      await verifyMessage(sentMessage, ticket, contact);
+    }
   } 
   catch (err) {
     Sentry.captureException(err);
