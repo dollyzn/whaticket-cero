@@ -13,11 +13,15 @@ import Typography from "@material-ui/core/Typography";
 import Avatar from "@material-ui/core/Avatar";
 import Divider from "@material-ui/core/Divider";
 import Badge from "@material-ui/core/Badge";
-
+import IconButton from '@material-ui/core/IconButton';
 import { i18n } from "../../translate/i18n";
-
+import DoneIcon from '@material-ui/icons/Done';
+import VisibilityIcon from '@material-ui/icons/Visibility';
+import ReplayIcon from '@material-ui/icons/Replay';
+import StopIcon from '@material-ui/icons/Stop';
 import api from "../../services/api";
-import ButtonWithSpinner from "../ButtonWithSpinner";
+import ClearOutlinedIcon from '@material-ui/icons/ClearOutlined';
+//import ButtonWithSpinner from "../ButtonWithSpinner";
 import MarkdownWrapper from "../MarkdownWrapper";
 import { Tooltip } from "@material-ui/core";
 import { AuthContext } from "../../context/Auth/AuthContext";
@@ -81,6 +85,10 @@ const useStyles = makeStyles(theme => ({
 		marginLeft: "auto",
 	},
 
+	bottomButton: {
+		top: "12px",
+	},
+
 	badgeStyle: {
 		color: "white",
 		backgroundColor: green[500],
@@ -103,8 +111,8 @@ const useStyles = makeStyles(theme => ({
 	userTag: {
 		position: "absolute",
 		marginRight: 5,
-		right: 5,
-		bottom: 5,
+		right: 20,
+		bottom: 30,
 		background: "#2576D2",
 		color: "#ffffff",
 		border: "1px solid #CCC",
@@ -147,6 +155,57 @@ const TicketListItem = ({ ticket }) => {
 		history.push(`/tickets/${id}`);
 	};
 
+	const handleReopenTicket = async id => {
+		setLoading(true);
+		try {
+			await api.put(`/tickets/${id}`, {
+				status: "open",
+				userId: user?.id,
+			});
+		} catch (err) {
+			setLoading(false);
+			toastError(err);
+		}
+		if (isMounted.current) {
+			setLoading(false);
+		}
+		history.push(`/tickets/${id}`);
+	};
+
+	const handleViewTicket = async id => {
+		setLoading(true);
+		try {
+			await api.put(`/tickets/${id}`, {
+				status: "pending",
+			});
+		} catch (err) {
+			setLoading(false);
+			toastError(err);
+		}
+		if (isMounted.current) {
+			setLoading(false);
+		}
+		history.push(`/tickets/${id}`);
+	};	
+
+	const handleClosedTicket = async id => {
+		setLoading(true);
+		try {
+			await api.put(`/tickets/${id}`, {
+				status: "closed",
+				userId: user?.id,
+			});
+		} catch (err) {
+			setLoading(false);
+			toastError(err);
+		}
+		if (isMounted.current) {
+			setLoading(false);
+		}
+		//history.push(`/tickets/${id}`);
+	};		
+
+	
 	const handleSelectTicket = id => {
 		history.push(`/tickets/${id}`);
 	};
@@ -190,13 +249,6 @@ const TicketListItem = ({ ticket }) => {
 							>
 								{ticket.contact.name}
 							</Typography>
-							{ticket.status === "closed" && (
-								<Badge
-									className={classes.closedBadge}
-									badgeContent={"closed"}
-									color="primary"
-								/>
-							)}
 							{ticket.lastMessage && (
 								<Typography
 									className={classes.lastMessageTime}
@@ -243,17 +295,59 @@ const TicketListItem = ({ ticket }) => {
 					}
 				/>
 				{ticket.status === "pending" && (
-					<ButtonWithSpinner
-						color="primary"
-						variant="contained"
-						className={classes.acceptButton}
-						size="small"
-						loading={loading}
-						onClick={e => handleAcepptTicket(ticket.id)}
-					>
-						{i18n.t("ticketsList.buttons.accept")}
-					</ButtonWithSpinner>
+					<IconButton
+					className={classes.bottomButton}
+					color="primary"
+					onClick={e => handleAcepptTicket(ticket.id)} >
+					<DoneIcon />
+				  	</IconButton>	
 				)}
+				 {ticket.status === "pending" && (
+					<IconButton
+					className={classes.bottomButton}
+					color="primary"
+					onClick={e => handleViewTicket(ticket.id)} >
+					<VisibilityIcon />
+				  	</IconButton>								
+				)}	
+				 {ticket.status === "pending" && (
+					<IconButton
+					className={classes.bottomButton}
+					color="primary"
+					onClick={e => handleClosedTicket(ticket.id)} >
+					<ClearOutlinedIcon />
+				  	</IconButton>								
+				)}				
+				{ticket.status === "open" && (
+					<IconButton
+					className={classes.bottomButton}
+					color="primary" 
+					onClick={e => handleViewTicket(ticket.id)} >
+					<ReplayIcon />
+				  	</IconButton>	
+				)}
+				 {ticket.status === "open" && (
+					<IconButton
+					className={classes.bottomButton}
+					color="primary"
+					onClick={e => handleClosedTicket(ticket.id)} >
+					<ClearOutlinedIcon />
+				  	</IconButton>								
+				)}						
+				{ticket.status === "closed" && (
+					<IconButton
+					className={classes.bottomButton}
+					color="primary" 
+					onClick={e => handleReopenTicket(ticket.id)} >
+					<ReplayIcon />
+				  	</IconButton>	
+				)}		
+				{ticket.status === "closed" && (
+					<IconButton
+					className={classes.bottomButton}
+					color="primary" >
+				  	</IconButton>	
+				)}				
 			</ListItem>
 			<Divider variant="inset" component="li" />
 		</React.Fragment>

@@ -27,6 +27,7 @@ import CreateContactService from "../ContactServices/CreateContactService";
 import formatBody from "../../helpers/Mustache";
 import { queryDialogFlow } from "../DialogflowServices/QueryDialogflow";
 import { createDialogflowSessionWithModel } from "../DialogflowServices/CreateSessionDialogflow";
+import ListSettingsServiceOne from "../SettingServices/ListSettingsServiceOne";
 
 interface Session extends Client {
   id?: number;
@@ -254,7 +255,7 @@ async function sendDelayedMessages(wbot:Session, ticket:Ticket, contact:Contact,
    return new Promise( resolve => setTimeout(resolve, ms) );
 }
  // for(let message of linesOfBody) {
-    const sentMessage = await wbot.sendMessage(`${contact.number}@c.us`, message);
+    const sentMessage = await wbot.sendMessage(`${contact.number}@c.us`,"*Cero:*" + message);
     await verifyMessage(sentMessage, ticket, contact);
     await new Promise(f => setTimeout(f, 1000));
     await delay(3000);
@@ -266,6 +267,7 @@ const isValidMsg = (msg: WbotMessage): boolean => {
   if (
     msg.type === "chat" ||
     msg.type === "audio" ||
+    msg.type === "call_log" ||
     msg.type === "ptt" ||
     msg.type === "video" ||
     msg.type === "image" ||
@@ -305,6 +307,8 @@ const handleMessage = async (
 
       msgContact = await wbot.getContactById(msg.to);
     } else {
+      const listSettingsService = await ListSettingsServiceOne({key: "timeCreateNewTicket"});
+      var callSetting = listSettingsService?.value;
       msgContact = await msg.getContact();
     }
 
@@ -395,6 +399,11 @@ const handleMessage = async (
       }
     }
 
+    if(msg.type==="call_log" && callSetting==="disabled"){
+      const sentMessage = await wbot.sendMessage(`${contact.number}@c.us`, "As chamadas de voz e vídeo estão desabilitas para esse WhatsApp, favor enviar uma mensagem de texto. Obrigado");
+      await verifyMessage(sentMessage, ticket, contact);
+    }
+
     /* if (msg.type === "multi_vcard") {
       try {
         const array = msg.vCards.toString().split("\n");
@@ -455,7 +464,8 @@ const handleMessage = async (
         console.log(error);
       }
     } */
-  } catch (err) {
+  } 
+  catch (err) {
     Sentry.captureException(err);
     logger.error(`Error handling whatsapp message: Err: ${err}`);
   }

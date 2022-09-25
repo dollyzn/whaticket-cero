@@ -135,6 +135,33 @@ const Settings = () => {
 						value={settings && settings.length > 0 && getSettingValue("userApiToken")}
 					/>
 				</Paper>
+				
+				<Typography variant="body2" gutterBottom></Typography>
+				<Paper className={classes.paper}>
+
+					<Typography variant="body1">
+						{i18n.t("settings.settings.call.name")}
+					</Typography>
+					<Select
+						margin="dense"
+						variant="outlined"
+						native
+						id="call-setting"
+						name="call"
+						value={
+							settings && settings.length > 0 && getSettingValue("call")
+						}
+						className={classes.settingOption}
+						onChange={handleChangeSetting}
+					>
+						<option value="enabled">
+							{i18n.t("settings.settings.call.options.enabled")}
+						</option>
+						<option value="disabled">
+							{i18n.t("settings.settings.call.options.disabled")}
+						</option>
+					</Select>
+				</Paper>
 
 			</Container>
 		</div>
