@@ -428,8 +428,8 @@ const messages = {
           },          
         },
       },
-    },
-  },
+  
+
       messagesList: {
         header: {
           assignedTo: "Atribuído à:",

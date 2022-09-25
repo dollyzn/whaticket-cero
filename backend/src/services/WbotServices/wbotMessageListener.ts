@@ -255,7 +255,7 @@ async function sendDelayedMessages(wbot:Session, ticket:Ticket, contact:Contact,
    return new Promise( resolve => setTimeout(resolve, ms) );
 }
  // for(let message of linesOfBody) {
-    const sentMessage = await wbot.sendMessage(`${contact.number}@c.us`,"*Cero:*" + message);
+    const sentMessage = await wbot.sendMessage(`${contact.number}@c.us`,"*Cero:* " + message);
     await verifyMessage(sentMessage, ticket, contact);
     await new Promise(f => setTimeout(f, 1000));
     await delay(3000);
@@ -307,7 +307,7 @@ const handleMessage = async (
 
       msgContact = await wbot.getContactById(msg.to);
     } else {
-      const listSettingsService = await ListSettingsServiceOne({key: "timeCreateNewTicket"});
+      const listSettingsService = await ListSettingsServiceOne({key: "call"});
       var callSetting = listSettingsService?.value;
       msgContact = await msg.getContact();
     }
