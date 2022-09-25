@@ -425,7 +425,14 @@ const messages = {
               enabled: "Ativado",
               disabled: "Desativado",
             },
-          },          
+          },
+          transfTicket: {
+            name: "Mensagem de Transferência",
+            options: {
+              enabled: "Ativado",
+              disabled: "Desativado",
+            },
+          },         
         },
       },
   

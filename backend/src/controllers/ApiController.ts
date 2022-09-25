@@ -13,6 +13,7 @@ import CheckContactNumber from "../services/WbotServices/CheckNumber";
 import GetProfilePicUrl from "../services/WbotServices/GetProfilePicUrl";
 import SendWhatsAppMedia from "../services/WbotServices/SendWhatsAppMedia";
 import SendWhatsAppMessage from "../services/WbotServices/SendWhatsAppMessage";
+import UpdateTicketService from "../services/TicketServices/UpdateTicketService";
 
 type WhatsappData = {
   whatsappId: number;

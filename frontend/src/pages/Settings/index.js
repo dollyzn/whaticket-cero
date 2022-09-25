@@ -150,6 +150,33 @@ const Settings = () => {
 					</Select>
 				</Paper>
 
+				<Typography variant="body2" gutterBottom></Typography>
+				<Paper className={classes.paper}>
+
+					<Typography variant="body1">
+						{i18n.t("settings.settings.transfTicket.name")}
+					</Typography>
+					<Select
+						margin="dense"
+						variant="outlined"
+						native
+						id="transferTicket-setting"
+						name="transferTicket"
+						value={
+							settings && settings.length > 0 && getSettingValue("transferTicket")
+						}
+						className={classes.settingOption}
+						onChange={handleChangeSetting}
+					>
+						<option value="enabled">
+							{i18n.t("settings.settings.transfTicket.options.enabled")}
+						</option>
+						<option value="disabled">
+							{i18n.t("settings.settings.transfTicket.options.disabled")}
+						</option>
+					</Select>
+				</Paper>
+
 				<Paper className={classes.paper}>
 					<TextField
 						id="api-token-setting"
