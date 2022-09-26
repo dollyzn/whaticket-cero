@@ -104,7 +104,10 @@ export const update = async (
     return new Promise( resolve => setTimeout(resolve, ms) );
 }
 
-  if (ticketData.transf) {
+    const settingsTransfTicket = await ListSettingsServiceOne({key:"transferTicket"});
+    const transfTickets = (JSON.stringify("enabled"));
+
+    if ((JSON.stringify(settingsTransfTicket?.value)) === transfTickets && ticketData.transf) {
     console.log("Fila: " + ticketShow.queueId);
     if (ticketShow.userId !== ticketData.userId && ticketShow.queueId === ticketData.queueId || ticketData.queueId === undefined) {
       // const nomeAntigo = await ShowUserService(ticketShow.userId);
