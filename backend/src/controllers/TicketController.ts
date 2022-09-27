@@ -10,7 +10,8 @@ import SendWhatsAppMessage from "../services/WbotServices/SendWhatsAppMessage";
 import ShowWhatsAppService from "../services/WhatsappService/ShowWhatsAppService";
 import formatBody from "../helpers/Mustache";
 import ShowUserService from "../services/UserServices/ShowUserService";
-import ShowQueueService from"../services/QueueService/ShowQueueService";
+import ShowQueueService from "../services/QueueService/ShowQueueService";
+import ListSettingsServiceOne from "../services/SettingServices/ListSettingsServiceOne";
 import { isUndefined } from "util";
 
 type IndexQuery = {
