@@ -304,6 +304,13 @@ const handleMessage = async (
       if (!msg.hasMedia && msg.type !== "location" && msg.type !== "chat" && msg.type !== "vcard"
         //&& msg.type !== "multi_vcard"
       ) return;
+      
+      if(msg.body === "Att, Fátima" || msg.body === "Att, Daiana" || msg.body === "Att, Thalia){
+
+        setTimeout(async () => {
+        await UpdateTicketService({ticketId: ticket.id,ticketData: { status: "closed" }});}, 1000);
+    }
+
 
       msgContact = await wbot.getContactById(msg.to);
     } else {
