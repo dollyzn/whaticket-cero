@@ -123,7 +123,7 @@ const LoggedInLayout = ({ children }) => {
 
   useEffect(() => {
     if (document.body.offsetWidth > 600) {
-      setDrawerOpen(true);
+      setDrawerOpen(false);
     }
   }, []);
 
