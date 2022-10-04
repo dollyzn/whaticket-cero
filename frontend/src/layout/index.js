@@ -23,6 +23,7 @@ import NotificationsPopOver from "../components/NotificationsPopOver";
 import UserModal from "../components/UserModal";
 import { AuthContext } from "../context/Auth/AuthContext";
 import BackdropLoading from "../components/BackdropLoading";
+import logo from "../assets/logo.png";
 import { i18n } from "../translate/i18n";
 
 const drawerWidth = 240;
@@ -219,7 +220,12 @@ const LoggedInLayout = ({ children }) => {
             noWrap
             className={classes.title}
           >
-            CeroTicket
+           <img 
+            src={logo} 
+            alt="logo"
+            width="115px"
+            >
+            </img>
           </Typography>
           {user.id && <NotificationsPopOver />}
 

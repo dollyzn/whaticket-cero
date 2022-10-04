@@ -176,7 +176,16 @@ const TicketsManager = () => {
         <Tab
             value={"open"}
             icon={<MoveToInboxIcon />}
-            label={i18n.t("tickets.tabs.open.title")}
+            label={
+                <Badge
+                className={classes.badge}
+                badgeContent={openCount}
+                position="top-start"
+                color="secondary"
+            >
+                 {i18n.t("tickets.tabs.open.title")}
+            </Badge>
+            }
             classes={{ root: classes.tab }}
         />
         <Tab

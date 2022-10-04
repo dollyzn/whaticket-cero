@@ -2,7 +2,6 @@ import React, { useState, useContext } from "react";
 import { Link as RouterLink } from "react-router-dom";
 
 import {
-  Avatar,
   Button,
   CssBaseline,
   TextField,
@@ -15,7 +14,9 @@ import {
   Link
 } from '@material-ui/core';
 
-import { LockOutlined, Visibility, VisibilityOff } from '@material-ui/icons';
+import { Visibility, VisibilityOff } from '@material-ui/icons';
+
+import logo from "../../assets/logocero.png";
 
 import { makeStyles } from "@material-ui/core/styles";
 
@@ -77,12 +78,12 @@ const Login = () => {
     <Container component="main" maxWidth="xs">
       <CssBaseline />
       <div className={classes.paper}>
-        <Avatar className={classes.avatar}>
-          <LockOutlined />
-        </Avatar>
+          <img src={logo} width="40%" alt="logo login"></img>
+          <Box marginTop={5} marginBottom={2}>
         <Typography component="h1" variant="h5">
           {i18n.t("login.title")}
         </Typography>
+          </Box>
         <form className={classes.form} noValidate onSubmit={handlSubmit}>
           <TextField
             variant="outlined"

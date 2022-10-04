@@ -16,6 +16,7 @@ import MoreVert from "@material-ui/icons/MoreVert";
 import MoodIcon from "@material-ui/icons/Mood";
 import SendIcon from "@material-ui/icons/Send";
 import CancelIcon from "@material-ui/icons/Cancel";
+import { Can } from "../Can";
 import ClearIcon from "@material-ui/icons/Clear";
 import MicIcon from "@material-ui/icons/Mic";
 import CheckCircleOutlineIcon from "@material-ui/icons/CheckCircleOutline";
@@ -218,11 +219,17 @@ const MessageInput = ({ ticketStatus }) => {
     useContext(ReplyMessageContext);
   const { user } = useContext(AuthContext);
 
-  const [signMessage, setSignMessage] = useLocalStorage("signOption", true);
+  const [signMessage, setSignMessage] = useLocalStorage("signOption", true); 
 
   useEffect(() => {
     inputRef.current.focus();
   }, [replyingMessage]);
+
+  useEffect(() => {
+    if (user.profile.toUpperCase() === "ADMIN") {
+      setSignMessage(true);
+    }
+  }, [])
 
   useEffect(() => {
     inputRef.current.focus();
@@ -490,6 +497,10 @@ const MessageInput = ({ ticketStatus }) => {
                 <AttachFileIcon className={classes.sendMessageIcons} />
               </IconButton>
             </label>
+            <Can
+            role={user.profile}
+            perform="sign-message:disable"
+            yes={() => (
             <FormControlLabel
               style={{ marginRight: 7, color: "gray" }}
               label={i18n.t("messagesInput.signMessage")}
@@ -505,6 +516,8 @@ const MessageInput = ({ ticketStatus }) => {
                   color="primary"
                 />
               }
+            />
+            )}
             />
           </Hidden>
           <Hidden only={["md", "lg", "xl"]}>
@@ -552,6 +565,10 @@ const MessageInput = ({ ticketStatus }) => {
                 </label>
               </MenuItem>
               <MenuItem onClick={handleMenuItemClick}>
+              <Can
+               role={user.profile}
+               perform="sign-message:disable"
+               yes={() => (
                 <FormControlLabel
                   style={{ marginRight: 7, color: "gray" }}
                   label={i18n.t("messagesInput.signMessage")}
@@ -568,6 +585,8 @@ const MessageInput = ({ ticketStatus }) => {
                     />
                   }
                 />
+               )}
+               />
               </MenuItem>
             </Menu>
           </Hidden>

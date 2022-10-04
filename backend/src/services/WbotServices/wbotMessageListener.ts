@@ -305,7 +305,7 @@ const handleMessage = async (
         //&& msg.type !== "multi_vcard"
       ) return;
       
-      if(msg.body === "Att, Fátima" || msg.body === "Att, Daiana" || msg.body === "Att, Thalia"){
+      if(msg.body === "Att, Fátima" || msg.body === "Att, Daiana" || msg.body === "Att, Thalia" || msg.body === "*Cero:* Atendimento finalizado."){
 
         setTimeout(async () => {
         await UpdateTicketService({ticketId: ticket.id,ticketData: { status: "closed" }});}, 1000);
