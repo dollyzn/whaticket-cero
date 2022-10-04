@@ -262,7 +262,7 @@ const messages = {
         },
         tabs: {
           open: { title: "Conversas" },
-          closed: { title: "Resolvidos" },
+          closed: { title: "Finalizados" },
           search: { title: "Busca" },
         },
         search: {
@@ -443,7 +443,7 @@ const messages = {
           buttons: {
             dialogflow: "Dialogflow",
             return: "Retornar",
-            resolve: "Resolver",
+            resolve: "Finalizar",
             reopen: "Reabrir",
             accept: "Aceitar",
           },
