@@ -260,6 +260,7 @@ const TicketsManager = () => {
           />
           <TicketsList
             status="pending"
+            selectedQueueIds={selectedQueueIds}
             updateCount={(val) => setPendingCount(val)}
             style={applyPanelStyle("pending")}
           />
