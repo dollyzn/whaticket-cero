@@ -111,7 +111,7 @@ const useStyles = makeStyles(theme => ({
 	},
 
 	userTag: {
-		position: "relative",
+		position: "absolute",
 		marginRight: 5,
 		right: 60,
 		bottom: 30,
