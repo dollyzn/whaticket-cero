@@ -65,7 +65,8 @@ const useStyles = makeStyles(theme => ({
 	},
 
 	lastMessageTime: {
-		justifySelf: "flex-end",
+		left: 43,
+		position: "relative",
 	},
 
 	closedBadge: {
@@ -90,6 +91,7 @@ const useStyles = makeStyles(theme => ({
 	},
 
 	badgeStyle: {
+		top: 2,
 		color: "white",
 		backgroundColor: green[500],
 	},
@@ -109,9 +111,9 @@ const useStyles = makeStyles(theme => ({
 	},
 
 	userTag: {
-		position: "absolute",
+		position: "relative",
 		marginRight: 5,
-		right: 20,
+		right: 60,
 		bottom: 30,
 		background: "#2576D2",
 		color: "#ffffff",
@@ -130,6 +132,7 @@ const TicketListItem = ({ ticket }) => {
 	const [loading, setLoading] = useState(false);
 	const { ticketId } = useParams();
 	const isMounted = useRef(true);
+	const [useDialogflow, setUseDialogflow] = useState(ticket.contact.useDialogflow);
 	const { user } = useContext(AuthContext);
 
 	useEffect(() => {
@@ -138,26 +141,11 @@ const TicketListItem = ({ ticket }) => {
 		};
 	}, []);
 
-	const handleAcepptTicket = async id => {
-		setLoading(true);
-		try {
-			await api.put(`/tickets/${id}`, {
-				status: "open",
-				userId: user?.id,
-			});
-		} catch (err) {
-			setLoading(false);
-			toastError(err);
-		}
-		if (isMounted.current) {
-			setLoading(false);
-		}
-		history.push(`/tickets/${id}`);
-	};
-
 	const handleReopenTicket = async id => {
 		setLoading(true);
 		try {
+			const contact = await api.put(`/contacts/toggleUseDialogflow/${ticket.contact.id}`);
+			setUseDialogflow(contact.data.useDialogflow);
 			await api.put(`/tickets/${id}`, {
 				status: "open",
 				userId: user?.id,
@@ -172,12 +160,16 @@ const TicketListItem = ({ ticket }) => {
 		history.push(`/tickets/${id}`);
 	};
 
-	const handleViewTicket = async id => {
+	const handleAcepptTicket = async id => {
 		setLoading(true);
 		try {
+			const contact = await api.put(`/contacts/toggleUseDialogflow/${ticket.contact.id}`);
+			setUseDialogflow(contact.data.useDialogflow);
 			await api.put(`/tickets/${id}`, {
-				status: "pending",
+				status: "open",
+				userId: user?.id,
 			});
+			history.push("/tickets");
 		} catch (err) {
 			setLoading(false);
 			toastError(err);
@@ -186,15 +178,18 @@ const TicketListItem = ({ ticket }) => {
 			setLoading(false);
 		}
 		history.push(`/tickets/${id}`);
-	};	
+	};
 
 	const handleClosedTicket = async id => {
 		setLoading(true);
 		try {
+			const contact = await api.put(`/contacts/toggleUseDialogflow/${ticket.contact.id}`);
+			setUseDialogflow(contact.data.useDialogflow);
 			await api.put(`/tickets/${id}`, {
 				status: "closed",
 				userId: user?.id,
 			});
+			history.push("/tickets");
 		} catch (err) {
 			setLoading(false);
 			toastError(err);
@@ -216,7 +211,6 @@ const TicketListItem = ({ ticket }) => {
 				dense
 				button
 				onClick={e => {
-					if (ticket.status === "pending") return;
 					handleSelectTicket(ticket.id);
 				}}
 				selected={ticketId && +ticketId === ticket.id}
@@ -264,7 +258,7 @@ const TicketListItem = ({ ticket }) => {
 								</Typography>
 							)}
 							{ticket.whatsappId && (
-								<div className={classes.userTag} title={i18n.t("ticketsList.connectionTitle")}>{ticket.whatsapp?.name}</div>
+								<span className={classes.userTag} title={i18n.t("ticketsList.connectionTitle")}>{ticket.whatsapp?.name}</span>
 							)}
 						</span>
 					}
@@ -294,37 +288,13 @@ const TicketListItem = ({ ticket }) => {
 						</span>
 					}
 				/>
-				{ticket.status === "pending" && (
+				 {ticket.status === "pending" && (
 					<IconButton
 					className={classes.bottomButton}
 					color="primary"
 					onClick={e => handleAcepptTicket(ticket.id)} >
 					<DoneIcon />
-				  	</IconButton>	
-				)}
-				 {ticket.status === "pending" && (
-					<IconButton
-					className={classes.bottomButton}
-					color="primary"
-					onClick={e => handleViewTicket(ticket.id)} >
-					<VisibilityIcon />
 				  	</IconButton>								
-				)}	
-				 {ticket.status === "pending" && (
-					<IconButton
-					className={classes.bottomButton}
-					color="primary"
-					onClick={e => handleClosedTicket(ticket.id)} >
-					<ClearOutlinedIcon />
-				  	</IconButton>								
-				)}				
-				{ticket.status === "open" && (
-					<IconButton
-					className={classes.bottomButton}
-					color="primary" 
-					onClick={e => handleViewTicket(ticket.id)} >
-					<ReplayIcon />
-				  	</IconButton>	
 				)}
 				 {ticket.status === "open" && (
 					<IconButton
@@ -341,13 +311,7 @@ const TicketListItem = ({ ticket }) => {
 					onClick={e => handleReopenTicket(ticket.id)} >
 					<ReplayIcon />
 				  	</IconButton>	
-				)}		
-				{ticket.status === "closed" && (
-					<IconButton
-					className={classes.bottomButton}
-					color="primary" >
-				  	</IconButton>	
-				)}				
+				)}	
 			</ListItem>
 			<Divider variant="inset" component="li" />
 		</React.Fragment>
