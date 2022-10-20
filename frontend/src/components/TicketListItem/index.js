@@ -258,7 +258,7 @@ const TicketListItem = ({ ticket }) => {
 								</Typography>
 							)}
 							{ticket.whatsappId && (
-								<span className={classes.userTag} title={i18n.t("ticketsList.connectionTitle")}>{ticket.whatsapp?.name}</span>
+								<div className={classes.userTag} title={i18n.t("ticketsList.connectionTitle")}>{ticket.whatsapp?.name}</div>
 							)}
 						</span>
 					}
