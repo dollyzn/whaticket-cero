@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
 
 import { useHistory, useParams } from "react-router-dom";
-import { parseISO, format, isSameDay } from "date-fns";
+import { parseISO, format, isSameDay, formatRelative } from "date-fns";
 import clsx from "clsx";
 
 import { makeStyles } from "@material-ui/core/styles";
@@ -65,8 +65,14 @@ const useStyles = makeStyles(theme => ({
 	},
 
 	lastMessageTime: {
-		left: 43,
+		left: 35,
+		top: "20px",
 		position: "relative",
+		backgroundColor: "primary",
+		borderRadius: 10,
+		paddingLeft: 5,
+		paddingRight: 5,
+		padding: 1,
 	},
 
 	closedBadge: {
@@ -84,10 +90,13 @@ const useStyles = makeStyles(theme => ({
 		alignSelf: "center",
 		marginRight: 8,
 		marginLeft: "auto",
+		bottom: 28,
+		left: 53,
 	},
 
 	bottomButton: {
-		top: "12px",
+		top: "10px",
+		left: 20,
 	},
 
 	badgeStyle: {
@@ -113,8 +122,8 @@ const useStyles = makeStyles(theme => ({
 	userTag: {
 		position: "absolute",
 		marginRight: 5,
-		right: 60,
-		bottom: 30,
+		right: 26,
+		bottom: 35,
 		background: "#2576D2",
 		color: "#ffffff",
 		border: "1px solid #CCC",
@@ -150,6 +159,7 @@ const TicketListItem = ({ ticket }) => {
 				status: "open",
 				userId: user?.id,
 			});
+			history.push("/tickets");
 		} catch (err) {
 			setLoading(false);
 			toastError(err);
@@ -199,10 +209,36 @@ const TicketListItem = ({ ticket }) => {
 		}
 		//history.push(`/tickets/${id}`);
 	};		
-
 	
 	const handleSelectTicket = id => {
 		history.push(`/tickets/${id}`);
+	};
+
+	function contDays(){
+		
+		const day = 86400000;
+		
+		let dateini = parseISO(ticket.updatedAt);
+		let dateend = new Date();
+		
+		let date_ini = dateini.getTime();
+		let date_end = dateend.getTime();
+
+		let diff = (date_end - date_ini);
+
+		let dias = Math.floor(diff / day);
+
+		let cnt;
+
+		if(dias === 0){
+			cnt = format(parseISO(ticket.updatedAt), "HH:mm");
+		}else{if(dias === 1){
+			cnt = "Há " + dias + " dia";
+		}else{
+                        cnt = "Há " + dias + " dias";
+                }}
+
+		return(cnt);
 	};
 
 	return (
@@ -253,7 +289,7 @@ const TicketListItem = ({ ticket }) => {
 									{isSameDay(parseISO(ticket.updatedAt), new Date()) ? (
 										<>{format(parseISO(ticket.updatedAt), "HH:mm")}</>
 									) : (
-										<>{format(parseISO(ticket.updatedAt), "dd/MM/yyyy")}</>
+										<>{contDays()}</>
 									)}
 								</Typography>
 							)}
