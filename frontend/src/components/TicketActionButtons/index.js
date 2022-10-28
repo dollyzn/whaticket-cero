@@ -11,6 +11,7 @@ import TicketOptionsMenu from "../TicketOptionsMenu";
 import ButtonWithSpinner from "../ButtonWithSpinner";
 import toastError from "../../errors/toastError";
 import { AuthContext } from "../../context/Auth/AuthContext";
+import { Can } from "../Can";
 
 const useStyles = makeStyles(theme => ({
 	actionButtons: {
@@ -44,6 +45,8 @@ const TicketActionButtons = ({ ticket }) => {
 	const handleUpdateTicketStatus = async (e, status, userId) => {
 		setLoading(true);
 		try {
+			const contact = await api.put(`/contacts/toggleUseDialogflow/${ticket.contact.id}`);
+			setUseDialogflow(contact.data.useDialogflow);
 			await api.put(`/tickets/${ticket.id}`, {
 				status: status,
 				userId: userId || null,
@@ -76,6 +79,10 @@ const TicketActionButtons = ({ ticket }) => {
 	return (
 		<div className={classes.actionButtons}>
 			{ticket?.queue?.dialogflow && 
+			<Can
+              role={user.profile}
+              perform="tickets-manager:showall"
+              yes={() => (
 				<FormControlLabel
 					control={
 						<Switch
@@ -86,6 +93,8 @@ const TicketActionButtons = ({ ticket }) => {
 					}
 					label={i18n.t("messagesList.header.buttons.dialogflow")}
 				/>
+				)}
+            />
 			}
 			{ticket.status === "closed" && (
 				<ButtonWithSpinner
@@ -143,3 +152,4 @@ const TicketActionButtons = ({ ticket }) => {
 };
 
 export default TicketActionButtons;
+
