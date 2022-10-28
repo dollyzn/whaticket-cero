@@ -98,14 +98,46 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
 
   const contactAndTicket = await createContact(whatsappId, newContact.number);
 
+  function delay(ms: number) {
+    return new Promise( resolve => setTimeout(resolve, ms) );
+  }
+
   if (medias) {
     await Promise.all(
       medias.map(async (media: Express.Multer.File) => {
         await SendWhatsAppMedia({ body, media, ticket: contactAndTicket });
       })
     );
-  } else {
-    await SendWhatsAppMessage({ body, ticket: contactAndTicket, quotedMsg });
+  } else { 
+   if(body == "Cero2"){
+    var msgtxt = "Seu feedback é importante para a Cero Imagem Unidade II. Poste uma avaliação no nosso perfil.\nhttps://g.page/cero-imagem/review?rc";
+    await SendWhatsAppMessage({body: msgtxt, ticket: contactAndTicket, quotedMsg});
+    await delay(300);
+  }
+
+   if(body == "CeroM"){
+    var msgtxt = "Seu feedback é importante para a Cero Imagem Campos. Poste uma avaliação no nosso perfil.\nhttps://g.page/r/CT73CTwDleiEEAg/review";
+    await SendWhatsAppMessage({body: msgtxt, ticket: contactAndTicket, quotedMsg});
+    await delay(300);
+  }
+ 
+   if(body == "CeroSFI"){
+    var msgtxt = "Seu feedback é importante para a Cero Imagem São Francisco. Poste uma avaliação no nosso perfil.\nhttps://g.page/r/Ca29px2WRRA7EAg/review";
+    await SendWhatsAppMessage({body: msgtxt, ticket: contactAndTicket, quotedMsg});
+    await delay(300);
+  }
+
+  if(body == "CeroSJB"){
+    var msgtxt = "Seu feedback é importante para a Cero Imagem São João da Barra. Poste uma avaliação no nosso perfil.\nhttps://g.page/cero-imagem-sjb/review?";
+    await SendWhatsAppMessage({body: msgtxt, ticket: contactAndTicket, quotedMsg});
+    await delay(300);
+  }
+
+   if(body == "Nome não definido" || body == "Cero2" || body == "CeroM" || body == "CeroSFI" || body == "CeroSJB"){
+  console.log("Nome do atendente não definido ou Mensagem de feedback enviada");
+  }else{  
+  await SendWhatsAppMessage({ body, ticket: contactAndTicket, quotedMsg });
+  }
   }
 
   setTimeout(async () => {
@@ -113,3 +145,4 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
     //return res.send();
     return res.send({ error: "SUCCESS" });
 };
+
