@@ -53,10 +53,24 @@ class Whatsapp extends Model<Whatsapp> {
   @Column(DataType.TEXT)
   farewellMessage: string;
 
+  @Column(DataType.TEXT)
+  outServiceMessage: string;
+
+  @Column(DataType.TIME)
+  openingHours: string;
+
+  @Column(DataType.TIME)
+  closingHours: string;
+
   @Default(false)
   @AllowNull
   @Column
   isDefault: boolean;
+
+  @Default(false)
+  @AllowNull
+  @Column
+  useoutServiceMessage: boolean;
 
   @CreatedAt
   createdAt: Date;
