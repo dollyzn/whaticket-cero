@@ -16,6 +16,10 @@ interface WhatsappData {
   farewellMessage?: string;
   status?: string;
   isDefault?: boolean;
+  useoutServiceMessage?: boolean;
+  openingHours?: string;
+  closingHours?: string;
+  outServiceMessage?: string;
 }
 
 export const index = async (req: Request, res: Response): Promise<Response> => {
@@ -29,18 +33,26 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
     name,
     status,
     isDefault,
+    useoutServiceMessage,
     greetingMessage,
     farewellMessage,
-    queueIds
+    queueIds,
+    openingHours,
+    closingHours,
+    outServiceMessage
   }: WhatsappData = req.body;
 
   const { whatsapp, oldDefaultWhatsapp } = await CreateWhatsAppService({
     name,
     status,
     isDefault,
+    useoutServiceMessage,
     greetingMessage,
     farewellMessage,
-    queueIds
+    queueIds,
+    openingHours,
+    closingHours,
+    outServiceMessage
   });
 
   StartWhatsAppSession(whatsapp);
