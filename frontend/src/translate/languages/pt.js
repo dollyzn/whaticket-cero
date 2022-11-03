@@ -41,10 +41,10 @@ const messages = {
         },
         messages: {
           inAttendance: {
-            title: "Em Atendimento"
+            title: "Aguardando"
           },
           waiting: {
-            title: "Aguardando"
+            title: "Pendente"
           },
           closed: {
             title: "Finalizado"
@@ -106,9 +106,11 @@ const messages = {
           edit: "Editar WhatsApp",
         },
         form: {
-          name: "Nome",
-          default: "Padrão",
-          farewellMessage: "Mensagem de despedida"
+          useoutServiceMessage: "Mensagem",
+          farewellMessage: "Mensagem de despedida",
+          outServiceMessage: "Mensagem fora do expediente",
+          closingHours: "Fechamento",
+          openingHours: "Abertura",
         },
         buttons: {
           okAdd: "Adicionar",
