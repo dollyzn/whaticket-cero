@@ -31,7 +31,21 @@ module.exports = {
       updatedAt: {
         type: DataTypes.DATE,
         allowNull: false
-      }
+      },
+      openingHours: {
+        type: DataTypes.STRING
+      },
+      closingHours: {
+        type: DataTypes.STRING
+      },
+      outServiceMessage: {
+        type: DataTypes.TEXT
+      },
+      useoutServiceMessage: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+      },
     });
   },
 
