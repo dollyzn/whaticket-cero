@@ -11,9 +11,13 @@ interface WhatsappData {
   status?: string;
   session?: string;
   isDefault?: boolean;
+  useoutServiceMessage?: boolean;
   greetingMessage?: string;
   farewellMessage?: string;
   queueIds?: number[];
+  openingHours?: string;
+  closingHours?: string;
+  outServiceMessage?: string;
 }
 
 interface Request {
@@ -40,9 +44,13 @@ const UpdateWhatsAppService = async ({
     name,
     status,
     isDefault,
+    useoutServiceMessage,
     session,
     greetingMessage,
     farewellMessage,
+    outServiceMessage,
+    openingHours,
+    closingHours,
     queueIds = []
   } = whatsappData;
 
@@ -75,6 +83,10 @@ const UpdateWhatsAppService = async ({
     session,
     greetingMessage,
     farewellMessage,
+    outServiceMessage,
+    openingHours,
+    closingHours,
+    useoutServiceMessage,
     isDefault
   });
 
