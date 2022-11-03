@@ -109,6 +109,11 @@ const messages = {
         form: {
           name: "Nombre",
           default: "Por Defecto",
+          useoutServiceMessage: "Mensaje",
+          farewellMessage: "Mensaje de despedida",
+          outServiceMessage: "Mensaje fuera de horario",
+          closingHours: "Cierre",
+          openingHours: "Apertura",
         },
         buttons: {
           okAdd: "Agregar",
