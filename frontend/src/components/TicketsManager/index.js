@@ -10,6 +10,8 @@ import Badge from "@material-ui/core/Badge";
 import MoveToInboxIcon from "@material-ui/icons/MoveToInbox";
 import HourglassEmptyRoundedIcon from "@material-ui/icons/HourglassEmptyRounded";
 import CheckBoxIcon from "@material-ui/icons/CheckBox";
+import ClearOutlinedIcon from "@material-ui/icons/ClearOutlined";
+import IconButton from "@material-ui/core/IconButton";
 
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Switch from "@material-ui/core/Switch";
@@ -75,6 +77,14 @@ const useStyles = makeStyles((theme) => ({
     alignSelf: "center",
   },
 
+  searchClear: {
+    "&.MuiIconButton-root": {
+      padding: "0",
+      margin: "0",
+      backgroundColor: "transparent",
+    },
+  },
+
   searchInput: {
     flex: 11,
     outlineStyle: "none",
@@ -106,6 +116,7 @@ const TicketsManager = () => {
   const [tabOpen, setTabOpen] = useState("open");
   const [newTicketModalOpen, setNewTicketModalOpen] = useState(false);
   const [showAllTickets, setShowAllTickets] = useState(false);
+  const [isShown, setIsShown] = useState(false);
   const searchInputRef = useRef();
   const { user } = useContext(AuthContext);
 
@@ -121,17 +132,29 @@ const TicketsManager = () => {
     }
   }, [])
 
+  const handleHideButtonSearch = (event, visibility) => {
+    setIsShown(visibility);
+  };
+
   const handleSearch = (e) => {
     const searchedTerm = e.target.value.toLowerCase();
 
 
     setSearchParam(searchedTerm);
+    handleHideButtonSearch(e, true);
     if (searchedTerm === "") {
       setTab("open");
+      handleHideButtonSearch(e, false);
     } else if (tab !== "search") {
       setTab("search");
     }
 
+  };
+
+  const handleClearSearch = (e) => {
+    handleHideButtonSearch(e, false);
+    setSearchParam("");
+    setTab("open");
   };
 
   const handleChangeTab = (e, newValue) => {
@@ -163,6 +186,14 @@ const TicketsManager = () => {
             value={searchParam}
             onChange={handleSearch}
         />
+        <IconButton
+          display="none"
+          className={classes.searchClear}
+          style={{ display: isShown ? "block" : "none" }}
+          onClick={handleClearSearch}
+        >
+          <ClearOutlinedIcon />
+        </IconButton>
     </Paper>
     <Paper elevation={0} square className={classes.tabsHeader}>
         <Tabs
