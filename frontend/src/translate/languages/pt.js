@@ -106,6 +106,8 @@ const messages = {
           edit: "Editar WhatsApp",
         },
         form: {
+          name: "Nome",
+          default: "Padrão",
           useoutServiceMessage: "Mensagem",
           farewellMessage: "Mensagem de despedida",
           outServiceMessage: "Mensagem fora do expediente",
