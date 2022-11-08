@@ -227,7 +227,14 @@ const verifyQueue = async (
     return;
   }
 
-  const selectedOption = msg.body;
+  let selectedOption = msg.body;
+
+  if (msg.body.toUpperCase() == "SOU DENTISTA") {
+    selectedOption = "1";
+  } else if (msg.body.toUpperCase() == "SOU PACIENTE") {
+    selectedOption = "2";
+  }
+
 
   const choosenQueue = queues[+selectedOption - 1];
 
