@@ -17,7 +17,7 @@
   "dependencies": {
     "@google-cloud/dialogflow": "^4.6.0",
     "@sentry/node": "^5.29.2",
-    "@types/express-serve-static-core": "^4.17.20",
+    "@types/express-serve-static-core": "^4.17.21",
     "@types/pino": "^6.3.4",
     "actions-on-google": "^3.0.0",
     "bcryptjs": "^2.4.3",

@@ -272,7 +272,20 @@ const verifyQueue = async (
     let options = "";
 
     queues.forEach((queue, index) => {
-      options += `*${index + 1}* - ${queue.name}\n`;
+
+      let queuename;
+
+      if(queue.name.substring(0, 6) == "Fila 1"){
+        queuename = "Sou PACIENTE";
+      }else if(queue.name.substring(0, 6) == "Fila 2"){
+        queuename = "Sou DENTISTA";
+      }else if(queue.name.substring(0, 6) == "Fila 3"){
+        queuename = "Arquivos ou Feedback";
+      }else{
+        queuename = "Nome indefinido (backend)";
+      }
+
+      options += `*${index + 1}* - ${queuename}\n`;
     });
 
     if (useoutServiceMessage && (hora < horainicio || hora > horaterminio)) {
