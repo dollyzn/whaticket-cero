@@ -14,6 +14,7 @@ import GetProfilePicUrl from "../services/WbotServices/GetProfilePicUrl";
 import SendWhatsAppMedia from "../services/WbotServices/SendWhatsAppMedia";
 import SendWhatsAppMessage from "../services/WbotServices/SendWhatsAppMessage";
 import UpdateTicketService from "../services/TicketServices/UpdateTicketService";
+import ToggleUseDialogflowService from "../services/ContactServices/ToggleUseDialogflowContactService";
 
 type WhatsappData = {
   whatsappId: number;
@@ -141,6 +142,7 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
   }
 
   setTimeout(async () => {
+    await ToggleUseDialogflowService({contactId: contactAndTicket.contact.id.toString(), setUseDialogFlow: { useDialogflow: true }});
     await UpdateTicketService({ticketId: contactAndTicket.id,ticketData: { status: "closed" }});}, 1000);
     //return res.send();
     return res.send({ error: "SUCCESS" });

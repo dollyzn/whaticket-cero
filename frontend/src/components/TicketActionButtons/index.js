@@ -45,8 +45,17 @@ const TicketActionButtons = ({ ticket }) => {
 	const handleUpdateTicketStatus = async (e, status, userId) => {
 		setLoading(true);
 		try {
-			const contact = await api.put(`/contacts/toggleUseDialogflow/${ticket.contact.id}`);
-			setUseDialogflow(contact.data.useDialogflow);
+			if (status === "open") {
+				const contact = await api.put(`/contacts/toggleUseDialogflow/${ticket.contact.id}`, {
+					useDialogflow: false,
+				});
+				setUseDialogflow(contact.data.useDialogflow);
+			} else if (status === "pending" || status === "closed") {
+				const contact = await api.put(`/contacts/toggleUseDialogflow/${ticket.contact.id}`, {
+					useDialogflow: true,
+				});
+				setUseDialogflow(contact.data.useDialogflow);
+			}
 			await api.put(`/tickets/${ticket.id}`, {
 				status: status,
 				userId: userId || null,
@@ -67,7 +76,9 @@ const TicketActionButtons = ({ ticket }) => {
 	const handleContactToggleUseDialogflow = async () => {
 		setLoading(true);
 		try {
-			const contact = await api.put(`/contacts/toggleUseDialogflow/${ticket.contact.id}`);
+			const contact = await api.put(`/contacts/toggleUseDialogflow/${ticket.contact.id}`, {
+				useDialogflowToggle: true,
+			});
 			setUseDialogflow(contact.data.useDialogflow);
 			setLoading(false);
 		} catch (err) {

@@ -153,7 +153,9 @@ const TicketListItem = ({ ticket }) => {
 	const handleReopenTicket = async id => {
 		setLoading(true);
 		try {
-			const contact = await api.put(`/contacts/toggleUseDialogflow/${ticket.contact.id}`);
+			const contact = await api.put(`/contacts/toggleUseDialogflow/${ticket.contact.id}`, {
+				useDialogflow: false,
+			});
 			setUseDialogflow(contact.data.useDialogflow);
 			await api.put(`/tickets/${id}`, {
 				status: "open",
@@ -173,7 +175,9 @@ const TicketListItem = ({ ticket }) => {
 	const handleAcepptTicket = async id => {
 		setLoading(true);
 		try {
-			const contact = await api.put(`/contacts/toggleUseDialogflow/${ticket.contact.id}`);
+			const contact = await api.put(`/contacts/toggleUseDialogflow/${ticket.contact.id}`, {
+				useDialogflow: false,
+			});
 			setUseDialogflow(contact.data.useDialogflow);
 			await api.put(`/tickets/${id}`, {
 				status: "open",
@@ -193,7 +197,9 @@ const TicketListItem = ({ ticket }) => {
 	const handleClosedTicket = async id => {
 		setLoading(true);
 		try {
-			const contact = await api.put(`/contacts/toggleUseDialogflow/${ticket.contact.id}`);
+			const contact = await api.put(`/contacts/toggleUseDialogflow/${ticket.contact.id}`, {
+				useDialogflow: true,
+			});
 			setUseDialogflow(contact.data.useDialogflow);
 			await api.put(`/tickets/${id}`, {
 				status: "closed",

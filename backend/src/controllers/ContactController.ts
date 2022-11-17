@@ -30,12 +30,17 @@ interface ExtraInfo {
   name: string;
   value: string;
 }
+
 interface ContactData {
   name: string;
   number: string;
   email?: string;
   useDialogflow: boolean;
   extraInfo?: ExtraInfo[];
+}
+
+interface Dialogflow {
+  useDialogflow: boolean;
 }
 
 export const index = async (req: Request, res: Response): Promise<Response> => {
@@ -171,9 +176,10 @@ export const toggleUseDialogflow = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
-  const { contactId } = req.params;
+  const setUseDialogFlow: Dialogflow = req.body;
+  var { contactId } = req.params;
 
-  const contact = await ToggleUseDialogflowContactService({ contactId });
+  const contact = await ToggleUseDialogflowContactService({ setUseDialogFlow, contactId });
 
   const io = getIO();
   io.emit("contact", {

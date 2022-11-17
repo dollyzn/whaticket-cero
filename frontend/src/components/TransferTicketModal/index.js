@@ -37,7 +37,7 @@ const filterOptions = createFilterOptions({
 	trim: true,
 });
 
-const TransferTicketModal = ({ modalOpen, onClose, ticketid, ticketWhatsappId }) => {
+const TransferTicketModal = ({ modalOpen, onClose, ticketid, ticketWhatsappId, ticketcontactid }) => {
 	const history = useHistory();
 	const [options, setOptions] = useState([]);
 	const [queues, setQueues] = useState([]);
@@ -110,6 +110,11 @@ const TransferTicketModal = ({ modalOpen, onClose, ticketid, ticketWhatsappId })
 				data.queueId = selectedQueue
 
 				if (!selectedUser) {
+					await api.put(`/contacts/toggleUseDialogflow/${ticketcontactid}`, {
+						useDialogflow: true,
+					});
+					data.status = 'pending';
+					data.userId = null;
 					data.transf = true;
 				}
 			}
