@@ -28,6 +28,9 @@ const TicketOptionsMenu = ({ ticket, menuOpen, handleClose, anchorEl }) => {
 	const handleDeleteTicket = async () => {
 		try {
 			await api.delete(`/tickets/${ticket.id}`);
+			await api.put(`/contacts/toggleUseDialogflow/${ticket.contact.id}`, {
+				useDialogflow: true,
+			});
 		} catch (err) {
 			toastError(err);
 		}
