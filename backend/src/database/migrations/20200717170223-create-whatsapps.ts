@@ -33,10 +33,10 @@ module.exports = {
         allowNull: false
       },
       openingHours: {
-        type: DataTypes.STRING
+        type: DataTypes.TIME
       },
       closingHours: {
-        type: DataTypes.STRING
+        type: DataTypes.TIME
       },
       outServiceMessage: {
         type: DataTypes.TEXT
