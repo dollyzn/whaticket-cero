@@ -52,7 +52,7 @@ node -v
 npm -v
 ```
 
-Install mysql-server
+Install Mysql Server
 
 ```bash
 sudo apt install mysql-server
