@@ -64,7 +64,7 @@ Create Mysql Database and change the authentication plugin:
 
 ```bash
 sudo mysql -u root
-CREATE DATABASE `whaticket-dialog` CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+CREATE DATABASE `whaticket` CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 USE mysql;
 UPDATE user SET plugin='mysql_native_password' WHERE User='root';
 FLUSH PRIVILEGES;
