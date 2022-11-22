@@ -229,9 +229,9 @@ const verifyQueue = async (
 
   let selectedOption = msg.body;
 
-  if (msg.body.toUpperCase() == "SOU DENTISTA") {
+  if (msg.body.toUpperCase() == "SOU PACIENTE") {
     selectedOption = "1";
-  } else if (msg.body.toUpperCase() == "SOU PACIENTE") {
+  } else if (msg.body.toUpperCase() == "SOU DENTISTA") {
     selectedOption = "2";
   }
 
