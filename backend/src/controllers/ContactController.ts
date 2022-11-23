@@ -14,6 +14,7 @@ import GetProfilePicUrl from "../services/WbotServices/GetProfilePicUrl";
 import AppError from "../errors/AppError";
 import GetContactService from "../services/ContactServices/GetContactService";
 import ToggleUseQueuesContactService from "../services/ContactServices/ToggleUseQueuesContactService";
+import ToggleAcceptAudioContactService from "../services/ContactServices/ToggleAcceptAudioContactService"
 import ToggleUseDialogflowContactService from "../services/ContactServices/ToggleUseDialogflowContactService";
 
 type IndexQuery = {
@@ -162,6 +163,23 @@ export const toggleUseQueue = async (
   const { contactId } = req.params;
 
   const contact = await ToggleUseQueuesContactService({ contactId });
+
+  const io = getIO();
+  io.emit("contact", {
+    action: "update",
+    contact
+  });
+
+  return res.status(200).json(contact);
+};
+
+export const toggleAcceptAudio = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  var { contactId } = req.params;
+
+  const contact = await ToggleAcceptAudioContactService({ contactId });
 
   const io = getIO();
   io.emit("contact", {

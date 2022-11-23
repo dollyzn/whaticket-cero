@@ -34,7 +34,7 @@ const ToggleUseDialogflowContactService = async ({
   });
 
   await contact.reload({
-    attributes: ["id", "name", "number", "email", "profilePicUrl", "useQueues", "useDialogflow"],
+    attributes: ["id", "name", "number", "email", "profilePicUrl", "useQueues", "acceptAudioMessage", "useDialogflow"],
     include: ["extraInfo"]
   });
 

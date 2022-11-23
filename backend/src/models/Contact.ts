@@ -45,6 +45,10 @@ class Contact extends Model<Contact> {
   @Column
   useQueues: boolean;
 
+  @Default(false)
+  @Column
+  acceptAudioMessage: boolean;
+
   @Default(true)
   @Column
   useDialogflow: boolean;

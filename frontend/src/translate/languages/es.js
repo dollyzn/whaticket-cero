@@ -455,6 +455,7 @@ const messages = {
       ticketOptionsMenu: {
         delete: "Borrar",
         useQueues: "Use Queues",
+        acceptAudioMessage: "Accept Audio",
         transfer: "Transferir",
         confirmationModal: {
           title: "¿Borrar ticket #",

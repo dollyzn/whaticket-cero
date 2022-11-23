@@ -10,17 +10,17 @@ const ToggleUseQueuesContactService = async ({
 }: Request): Promise<Contact> => {
   const contact = await Contact.findOne({
     where: { id: contactId },
-    attributes: ["id", "useQueues"]
+    attributes: ["id", "acceptAudioMessage"]
   });
 
   if (!contact) {
     throw new AppError("ERR_NO_CONTACT_FOUND", 404);
   }
 
-  const useQueues = contact.useQueues ? false : true;
+  const acceptAudioMessage = contact.acceptAudioMessage ? false : true;
 
   await contact.update({
-    useQueues
+    acceptAudioMessage
   });
 
   await contact.reload({

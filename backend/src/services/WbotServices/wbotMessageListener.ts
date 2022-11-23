@@ -523,6 +523,14 @@ const handleMessage = async (
       await sendDialogflowAwswer(wbot, ticket, msg, contact, chat);
     }
 
+    if (msg.type === "audio" || msg.type === "ptt" && contact.acceptAudioMessage === false) {
+      const sentMessage = await wbot.sendMessage(
+        `${contact.number}@c.us`,
+        "*Cero:* Infelizmente não conseguimos escutar nem enviar áudios por este canal de atendimento 😕, por favor, envie uma mensagem de *texto*."
+      );
+      await verifyMessage(sentMessage, ticket, contact);
+    }
+
     if (msg.type === "vcard") {
       try {
         const array = msg.body.split("\n");

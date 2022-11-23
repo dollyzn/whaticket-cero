@@ -469,6 +469,7 @@ const messages = {
       ticketOptionsMenu: {
         delete: "Deletar",
         useQueues: "Usar fila?",
+        acceptAudioMessage: "Aceitar áudios?",
         transfer: "Transferir",
         confirmationModal: {
           title: "Deletar o ticket do contato",

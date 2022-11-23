@@ -24,6 +24,8 @@ contactRoutes.put("/contacts/:contactId", isAuth, ContactController.update);
 
 contactRoutes.put("/contacts/toggleUseQueues/:contactId", isAuth, ContactController.toggleUseQueue);
 
+contactRoutes.put("/contacts/toggleAcceptAudio/:contactId", isAuth, ContactController.toggleAcceptAudio);
+
 contactRoutes.put("/contacts/toggleUseDialogflow/:contactId", isAuth, ContactController.toggleUseDialogflow);
 
 contactRoutes.delete("/contacts/:contactId", isAuth, ContactController.remove);

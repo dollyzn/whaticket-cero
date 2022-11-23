@@ -16,6 +16,7 @@ const TicketOptionsMenu = ({ ticket, menuOpen, handleClose, anchorEl }) => {
 	const [confirmationOpen, setConfirmationOpen] = useState(false);
 	const [transferTicketModalOpen, setTransferTicketModalOpen] = useState(false);
 	const [useQueues, setUseQueues] = useState(ticket.contact.useQueues);
+	const [acceptAudioMessage, setAcceptAudio] = useState(ticket.contact.acceptAudioMessage);
 	const isMounted = useRef(true);
 	const { user } = useContext(AuthContext);
 
@@ -61,6 +62,15 @@ const TicketOptionsMenu = ({ ticket, menuOpen, handleClose, anchorEl }) => {
 		}
 	};
 
+	const handleContactToggleAcceptAudio = async() => {
+		try {
+			const contact = await api.put(`/contacts/toggleAcceptAudio/${ticket.contact.id}`);
+			setAcceptAudio(contact.data.acceptAudioMessage)
+		} catch (err) {
+			toastError(err);
+		}
+	};
+
 	return (
 		<>
 			<Menu
@@ -90,6 +100,14 @@ const TicketOptionsMenu = ({ ticket, menuOpen, handleClose, anchorEl }) => {
 					/>
 					{i18n.t("ticketOptionsMenu.useQueues")}
 				</MenuItem>}
+				<MenuItem>
+				    <Switch
+					    size="small"
+						checked={acceptAudioMessage}
+						onChange={() => handleContactToggleAcceptAudio()}
+						/>
+						{i18n.t("ticketOptionsMenu.acceptAudioMessage")}
+				</MenuItem>
 				<Can
 					role={user.profile}
 					perform="ticket-options:deleteTicket"

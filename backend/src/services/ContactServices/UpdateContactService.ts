@@ -11,6 +11,7 @@ interface ContactData {
   email?: string;
   number?: string;
   name?: string;
+  acceptAudioMessage?: boolean;
   useDialogflow?: boolean;
   extraInfo?: ExtraInfo[];
 }
@@ -24,11 +25,11 @@ const UpdateContactService = async ({
   contactData,
   contactId
 }: Request): Promise<Contact> => {
-  const { email, name, number, extraInfo, useDialogflow } = contactData;
+  const { email, name, number, extraInfo, acceptAudioMessage, useDialogflow } = contactData;
 
   const contact = await Contact.findOne({
     where: { id: contactId },
-    attributes: ["id", "name", "number", "email", "profilePicUrl", "useQueues", "useDialogflow"],
+    attributes: ["id", "name", "number", "email", "profilePicUrl", "useQueues", "acceptAudioMessage", "useDialogflow"],
     include: ["extraInfo"]
   });
 
@@ -58,11 +59,12 @@ const UpdateContactService = async ({
     name,
     number,
     email,
+    acceptAudioMessage,
     useDialogflow
   });
 
   await contact.reload({
-    attributes: ["id", "name", "number", "email", "profilePicUrl", "useQueues", "useDialogflow"],
+    attributes: ["id", "name", "number", "email", "profilePicUrl", "useQueues", "acceptAudioMessage", "useDialogflow"],
     include: ["extraInfo"]
   });
 
