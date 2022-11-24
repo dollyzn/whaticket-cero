@@ -523,7 +523,12 @@ const handleMessage = async (
       await sendDialogflowAwswer(wbot, ticket, msg, contact, chat);
     }
 
-    if (msg.type === "audio" || msg.type === "ptt" && contact.acceptAudioMessage === false) {
+    if (
+      msg.type === "audio" || 
+      msg.type === "ptt" && 
+      !chat.isGroup &&
+      !contact.acceptAudioMessage
+      ) {
       const sentMessage = await wbot.sendMessage(
         `${contact.number}@c.us`,
         "*Cero:* Infelizmente não conseguimos escutar nem enviar áudios por este canal de atendimento 😕, por favor, envie uma mensagem de *texto*."
