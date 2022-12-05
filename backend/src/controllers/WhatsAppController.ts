@@ -20,6 +20,7 @@ interface WhatsappData {
   openingHours?: string;
   closingHours?: string;
   outServiceMessage?: string;
+  feedbackMessage?: string;
 }
 
 export const index = async (req: Request, res: Response): Promise<Response> => {
@@ -39,7 +40,8 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
     queueIds,
     openingHours,
     closingHours,
-    outServiceMessage
+    outServiceMessage,
+    feedbackMessage
   }: WhatsappData = req.body;
 
   const { whatsapp, oldDefaultWhatsapp } = await CreateWhatsAppService({
@@ -52,7 +54,8 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
     queueIds,
     openingHours,
     closingHours,
-    outServiceMessage
+    outServiceMessage,
+    feedbackMessage
   });
 
   StartWhatsAppSession(whatsapp);

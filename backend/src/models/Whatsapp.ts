@@ -56,6 +56,9 @@ class Whatsapp extends Model<Whatsapp> {
   @Column(DataType.TEXT)
   outServiceMessage: string;
 
+  @Column(DataType.TEXT)
+  feedbackMessage: string;
+
   @Column(DataType.TIME)
   openingHours: string;
 

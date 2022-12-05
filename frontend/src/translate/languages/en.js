@@ -41,15 +41,15 @@ const messages = {
         },
         messages: {
           inAttendance: {
-            title: "In Service"
+            title: "In Service",
           },
           waiting: {
-            title: "Waiting"
+            title: "Waiting",
           },
           closed: {
-            title: "Closed"
-          }
-        }
+            title: "Closed",
+          },
+        },
       },
       connections: {
         title: "Connections",
@@ -110,6 +110,7 @@ const messages = {
           useoutServiceMessage: "Message",
           farewellMessage: "Farewell message",
           outServiceMessage: "Out-of-hours message",
+          feedbackMessage: "Feedback message",
           closingHours: "Closing",
           openingHours: "Opening",
         },
@@ -212,7 +213,7 @@ const messages = {
           name: "Name",
           projectName: "Project Name",
           language: "Language",
-          jsonContent: "JsonContent"
+          jsonContent: "JsonContent",
         },
         buttons: {
           okAdd: "Add",
@@ -224,7 +225,7 @@ const messages = {
           testSuccess: "Dialogflow test successfully",
           addSuccess: "Dialogflow added successfully",
           editSuccess: "Dialogflow edited successfully",
-        }
+        },
       },
       userModal: {
         title: {
@@ -353,7 +354,7 @@ const messages = {
           name: "Name",
           projectName: "Project Name",
           lamguage: "Language",
-          lastUpdate:"Last Update",
+          lastUpdate: "Last Update",
           actions: "Actions",
         },
         buttons: {
@@ -361,8 +362,7 @@ const messages = {
         },
         confirmationModal: {
           deleteTitle: "Delete",
-          deleteMessage:
-            "Are you sure? It cannot be reverted!",
+          deleteMessage: "Are you sure? It cannot be reverted!",
         },
       },
       queueSelect: {
@@ -434,7 +434,8 @@ const messages = {
         },
       },
       messagesInput: {
-        placeholderOpen: "Type a message or press ''/'' to use the registered quick responses",
+        placeholderOpen:
+          "Type a message or press ''/'' to use the registered quick responses",
         placeholderClosed: "Reopen or accept this ticket to send a message.",
         signMessage: "Sign",
       },

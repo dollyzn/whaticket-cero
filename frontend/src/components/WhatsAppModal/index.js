@@ -64,6 +64,7 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
     greetingMessage: "",
     farewellMessage: "",
     outServiceMessage: "",
+    feedbackMessage: "",
     openingHours: "",
     closingHours: "",
     useoutServiceMessage: false,
@@ -215,6 +216,25 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                     }
                     helperText={
                       touched.outServiceMessage && errors.outServiceMessage
+                    }
+                    variant="outlined"
+                    margin="dense"
+                  />
+                </div>
+                <div>
+                  <Field
+                    as={TextField}
+                    label={i18n.t("whatsappModal.form.feedbackMessage")}
+                    type="feedbackMessage"
+                    multiline
+                    rows={5}
+                    fullWidth
+                    name="feedbackMessage"
+                    error={
+                      touched.feedbackMessage && Boolean(errors.feedbackMessage)
+                    }
+                    helperText={
+                      touched.feedbackMessage && errors.feedbackMessage
                     }
                     variant="outlined"
                     margin="dense"

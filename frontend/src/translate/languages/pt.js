@@ -41,15 +41,15 @@ const messages = {
         },
         messages: {
           inAttendance: {
-            title: "Aguardando"
+            title: "Aguardando",
           },
           waiting: {
-            title: "Pendente"
+            title: "Pendente",
           },
           closed: {
-            title: "Finalizado"
-          }
-        }
+            title: "Finalizado",
+          },
+        },
       },
       connections: {
         title: "Conexões",
@@ -111,6 +111,7 @@ const messages = {
           useoutServiceMessage: "Mensagem",
           farewellMessage: "Mensagem de despedida",
           outServiceMessage: "Mensagem fora do expediente",
+          feedbackMessage: "Mensagem de feedback",
           closingHours: "Fechamento",
           openingHours: "Abertura",
         },
@@ -225,7 +226,7 @@ const messages = {
           testSuccess: "Dialogflow testado com sucesso!",
           addSuccess: "Dialogflow adicionado com sucesso.",
           editSuccess: "Dialogflow editado com sucesso.",
-        }
+        },
       },
       userModal: {
         title: {
@@ -311,7 +312,7 @@ const messages = {
       },
       mainDrawer: {
         listItems: {
-          dashboard: "Dashboard",          
+          dashboard: "Dashboard",
           connections: "Conexões",
           tickets: "Tickets",
           contacts: "Contatos",
@@ -436,10 +437,9 @@ const messages = {
               enabled: "Ativado",
               disabled: "Desativado",
             },
-          },         
+          },
         },
       },
-  
 
       messagesList: {
         header: {
@@ -474,7 +474,8 @@ const messages = {
         confirmationModal: {
           title: "Deletar o ticket #",
           titleFrom: "do contato ",
-          message: "Atenção! Todas as mensagens relacionadas ao ticket serão perdidas.",
+          message:
+            "Atenção! Todas as mensagens relacionadas ao ticket serão perdidas.",
         },
         buttons: {
           delete: "Excluir",
