@@ -235,7 +235,6 @@ const verifyQueue = async (
     selectedOption = "2";
   }
 
-
   const choosenQueue = queues[+selectedOption - 1];
 
   if (choosenQueue) {
@@ -279,16 +278,15 @@ const verifyQueue = async (
     let options = "";
 
     queues.forEach((queue, index) => {
-
       let queuename;
 
-      if(queue.name.substring(0, 6) == "Fila 1"){
+      if (queue.name.substring(0, 6) == "Fila 1") {
         queuename = "Sou PACIENTE";
-      }else if(queue.name.substring(0, 6) == "Fila 2"){
+      } else if (queue.name.substring(0, 6) == "Fila 2") {
         queuename = "Sou DENTISTA";
-      }else if(queue.name.substring(0, 6) == "Fila 3"){
+      } else if (queue.name.substring(0, 6) == "Fila 3") {
         queuename = "Arquivos ou Feedback";
-      }else{
+      } else {
         queuename = "Nome indefinido (backend)";
       }
 
@@ -483,12 +481,12 @@ const handleMessage = async (
 
     const contact = await verifyContact(msgContact);
 
-    if (
+    /*if (
       unreadMessages === 0 &&
       whatsapp.farewellMessage &&
       formatBody(whatsapp.farewellMessage, contact) === msg.body
     )
-      return;
+     return;*/
 
     const ticket = await FindOrCreateTicketService(
       contact,
@@ -524,11 +522,12 @@ const handleMessage = async (
     }
 
     if (
-      msg.type === "audio" || 
+      msg.type === "audio" ||
       msg.type === "ptt" && 
-      !chat.isGroup &&
+      !msg.fromMe &&
+      !chat.isGroup && 
       !contact.acceptAudioMessage
-      ) {
+    ) {
       const sentMessage = await wbot.sendMessage(
         `${contact.number}@c.us`,
         "*Cero:* Infelizmente não conseguimos escutar nem enviar áudios por este canal de atendimento 😕, por favor, envie uma mensagem de *texto*."
