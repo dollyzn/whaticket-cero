@@ -481,12 +481,12 @@ const handleMessage = async (
 
     const contact = await verifyContact(msgContact);
 
-    /*if (
+    if (
       unreadMessages === 0 &&
       whatsapp.farewellMessage &&
       formatBody(whatsapp.farewellMessage, contact) === msg.body
     )
-     return;*/
+     return;
 
     const ticket = await FindOrCreateTicketService(
       contact,
