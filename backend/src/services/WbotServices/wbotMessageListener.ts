@@ -8,6 +8,7 @@ import {
   Message as WbotMessage,
   MessageAck,
   Client,
+  Buttons,
   Chat
 } from "whatsapp-web.js";
 
@@ -319,19 +320,41 @@ const verifyQueue = async (
     } else {
       const body = formatBody(`\u200e${greetingMessage}\n${options}`, contact);
 
-      const debouncedSentMessage = debounce(
-        async () => {
-          const sentMessage = await wbot.sendMessage(
-            `${contact.number}@c.us`,
-            body
-          );
-          verifyMessage(sentMessage, ticket, contact);
-        },
-        3000,
-        ticket.id
-      );
+      try {
+        let button = new Buttons(
+          greetingMessage,
+          [{ body: "Sou Paciente" }, { body: "Sou Dentista" }],
+          "Olá, seja bem-vindo!"
+        );
 
-      debouncedSentMessage();
+        const debouncedSentMessage = debounce(
+          async () => {
+            const sentMessage = await wbot.sendMessage(
+              `${contact.number}@c.us`,
+              button
+            );
+            verifyMessage(sentMessage, ticket, contact);
+          },
+          3000,
+          ticket.id
+        );
+
+        debouncedSentMessage();
+      } catch {
+        const debouncedSentMessage = debounce(
+          async () => {
+            const sentMessage = await wbot.sendMessage(
+              `${contact.number}@c.us`,
+              body
+            );
+            verifyMessage(sentMessage, ticket, contact);
+          },
+          3000,
+          ticket.id
+        );
+
+        debouncedSentMessage();
+      }
     }
   }
 };
@@ -409,6 +432,7 @@ const isValidMsg = (msg: WbotMessage): boolean => {
     msg.type === "image" ||
     msg.type === "document" ||
     msg.type === "vcard" ||
+    msg.type === "buttons_response" ||
     //msg.type === "multi_vcard" ||
     msg.type === "sticker" ||
     msg.type === "location"
@@ -486,7 +510,7 @@ const handleMessage = async (
       whatsapp.farewellMessage &&
       formatBody(whatsapp.farewellMessage, contact) === msg.body
     )
-     return;
+      return;
 
     const ticket = await FindOrCreateTicketService(
       contact,
@@ -523,11 +547,11 @@ const handleMessage = async (
 
     if (
       msg.type === "audio" ||
-      msg.type === "ptt" && 
+      msg.type === "ptt" &&
       !msg.fromMe &&
-      !chat.isGroup && 
-      !contact.acceptAudioMessage
-    ) {
+      chat.isGroup &&
+      contact.acceptAudioMessage)
+     {
       const sentMessage = await wbot.sendMessage(
         `${contact.number}@c.us`,
         "*Cero:* Infelizmente não conseguimos escutar nem enviar áudios por este canal de atendimento 😕, por favor, envie uma mensagem de *texto*."
