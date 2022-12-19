@@ -267,12 +267,32 @@ const verifyQueue = async (
           contact
         );
 
-        const sentMessage = await wbot.sendMessage(
-          `${contact.number}@c.us`,
-          body
-        );
+        if (choosenQueue === queues[0]) {
+          try {
+            let button = new Buttons(body, [{ body: "Sim" }, { body: "Não" }]);
 
-        await verifyMessage(sentMessage, ticket, contact);
+            const sentMessage = await wbot.sendMessage(
+              `${contact.number}@c.us`,
+              button
+            );
+
+            await verifyMessage(sentMessage, ticket, contact);
+          } catch {
+            const sentMessage = await wbot.sendMessage(
+              `${contact.number}@c.us`,
+              body
+            );
+
+            await verifyMessage(sentMessage, ticket, contact);
+          }
+        } else {
+          const sentMessage = await wbot.sendMessage(
+            `${contact.number}@c.us`,
+            body
+          );
+
+          await verifyMessage(sentMessage, ticket, contact);
+        }
       }
     }
   } else {
@@ -550,8 +570,8 @@ const handleMessage = async (
       msg.type === "ptt" &&
       !msg.fromMe &&
       chat.isGroup &&
-      contact.acceptAudioMessage)
-     {
+      contact.acceptAudioMessage
+    ) {
       const sentMessage = await wbot.sendMessage(
         `${contact.number}@c.us`,
         "*Cero:* Infelizmente não conseguimos escutar nem enviar áudios por este canal de atendimento 😕, por favor, envie uma mensagem de *texto*."
