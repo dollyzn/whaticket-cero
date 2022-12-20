@@ -569,8 +569,8 @@ const handleMessage = async (
       msg.type === "audio" ||
       msg.type === "ptt" &&
       !msg.fromMe &&
-      chat.isGroup &&
-      contact.acceptAudioMessage
+      !chat.isGroup &&
+      !contact.acceptAudioMessage
     ) {
       const sentMessage = await wbot.sendMessage(
         `${contact.number}@c.us`,
