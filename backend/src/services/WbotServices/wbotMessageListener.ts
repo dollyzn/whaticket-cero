@@ -490,14 +490,14 @@ const handleMessage = async (
       )
         return;
 
-      if (msg.body === "*Cero:* Atendimento finalizado.") {
+      /*if (msg.body === "*Cero:* Atendimento finalizado.") {
         setTimeout(async () => {
           await UpdateTicketService({
             ticketId: ticket.id,
             ticketData: { status: "closed" }
           });
         }, 1000);
-      }
+      }*/
 
       msgContact = await wbot.getContactById(msg.to);
     } else {
