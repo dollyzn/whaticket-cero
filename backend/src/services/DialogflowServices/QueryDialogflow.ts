@@ -47,11 +47,15 @@ async function queryDialogFlow(
         );
 
         const responses = intentResponse?.queryResult?.fulfillmentMessages;
+        const endConversation = intentResponse?.queryResult?.diagnosticInfo?.fields?.end_conversation?.boolValue;
 
         if (responses?.length === 0) {
             return null;
         } else {
-            return responses;
+            return {
+                responses,
+                endConversation
+            }
         }
     } catch (error) {
         Sentry.captureException(error);

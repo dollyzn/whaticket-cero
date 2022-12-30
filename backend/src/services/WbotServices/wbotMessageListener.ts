@@ -29,6 +29,7 @@ import formatBody from "../../helpers/Mustache";
 import { queryDialogFlow } from "../DialogflowServices/QueryDialogflow";
 import { createDialogflowSessionWithModel } from "../DialogflowServices/CreateSessionDialogflow";
 import ListSettingsServiceOne from "../SettingServices/ListSettingsServiceOne";
+import ToggleUseDialogflowService from "../ContactServices/ToggleUseDialogflowContactService";
 
 interface Session extends Client {
   id?: number;
@@ -406,6 +407,13 @@ const sendDialogflowAwswer = async (
     return;
   }
 
+  if (dialogFlowReply.endConversation) {
+    await ToggleUseDialogflowService({
+      contactId: ticket.contact.id.toString(),
+      setUseDialogFlow: { useDialogflow: false }
+    });
+  }
+
   chat.sendStateTyping();
 
   function delay(ms: number) {
@@ -414,7 +422,7 @@ const sendDialogflowAwswer = async (
 
   await delay(3000);
 
-  for (let message of dialogFlowReply) {
+  for (let message of dialogFlowReply.responses) {
     await sendDelayedMessages(wbot, ticket, contact, message.text.text[0]);
   }
 };
@@ -431,13 +439,34 @@ async function sendDelayedMessages(
     return new Promise(resolve => setTimeout(resolve, ms));
   }
   // for(let message of linesOfBody) {
-  const sentMessage = await wbot.sendMessage(
-    `${contact.number}@c.us`,
-    "*Cero:* " + message
-  );
-  await verifyMessage(sentMessage, ticket, contact);
-  await new Promise(f => setTimeout(f, 1000));
-  await delay(3000);
+  if (message === "Atendimento finalizado.") {
+    await delay(10000);
+
+    const sentMessage = await wbot.sendMessage(
+      `${contact.number}@c.us`,
+      "*Cero:* " + message
+    );
+
+    await verifyMessage(sentMessage, ticket, contact);
+    setTimeout(async () => {
+      await ToggleUseDialogflowService({
+        contactId: ticket.contact.id.toString(),
+        setUseDialogFlow: { useDialogflow: true }
+      });
+      await UpdateTicketService({
+        ticketId: ticket.id,
+        ticketData: { status: "closed" }
+      });
+    }, 3000);
+  } else {
+    const sentMessage = await wbot.sendMessage(
+      `${contact.number}@c.us`,
+      "*Cero:* " + message
+    );
+
+    await verifyMessage(sentMessage, ticket, contact);
+    await delay(3000);
+  }
   //}
 }
 
