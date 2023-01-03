@@ -396,6 +396,10 @@ const sendDialogflowAwswer = async (
 
   wbot.sendPresenceAvailable();
 
+  if (msg.type === "image" || msg.type === "document") {
+    msg.body = "image";
+  }
+
   let dialogFlowReply = await queryDialogFlow(
     session,
     ticket.queue.dialogflow.projectName,
@@ -433,7 +437,7 @@ async function sendDelayedMessages(
   contact: Contact,
   message: string
 ) {
-  const body = message.replace(/\\n/g, "");
+  //const body = message.replace(/\\n/g, "");
   //const linesOfBody = body.split('\n');
   function delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -444,7 +448,7 @@ async function sendDelayedMessages(
 
     const sentMessage = await wbot.sendMessage(
       `${contact.number}@c.us`,
-      "*Cero:* " + message
+      `*${ticket.queue.dialogflow.name}:* ` + message
     );
 
     await verifyMessage(sentMessage, ticket, contact);
@@ -461,11 +465,11 @@ async function sendDelayedMessages(
   } else {
     const sentMessage = await wbot.sendMessage(
       `${contact.number}@c.us`,
-      "*Cero:* " + message
+      `*${ticket.queue.dialogflow.name}:* ` + message
     );
 
     await verifyMessage(sentMessage, ticket, contact);
-    await delay(3000);
+    await delay(5000);
   }
   //}
 }
@@ -596,14 +600,14 @@ const handleMessage = async (
 
     if (
       msg.type === "audio" ||
-      msg.type === "ptt" &&
-      !msg.fromMe &&
-      !chat.isGroup &&
-      !contact.acceptAudioMessage
+      (msg.type === "ptt" &&
+        !msg.fromMe &&
+        !chat.isGroup &&
+        !contact.acceptAudioMessage)
     ) {
       const sentMessage = await wbot.sendMessage(
         `${contact.number}@c.us`,
-        "*Cero:* Infelizmente não conseguimos escutar nem enviar áudios por este canal de atendimento 😕, por favor, envie uma mensagem de *texto*."
+        "_Infelizmente não conseguimos escutar nem enviar áudios por este canal de atendimento 😕, por favor, envie uma mensagem de *texto*._"
       );
       await verifyMessage(sentMessage, ticket, contact);
     }
@@ -699,7 +703,7 @@ const handleMessage = async (
     if (msg.type === "call_log" && callSetting === "disabled") {
       const sentMessage = await wbot.sendMessage(
         `${contact.number}@c.us`,
-        "*Cero:* As chamadas de voz e vídeo estão desabilitas para esse canal de atendimento por WhatsApp 🫤, por favor, envie uma mensagem de texto."
+        "_As chamadas de voz e vídeo estão desabilitadas para esse canal de atendimento por WhatsApp 🫤, por favor, envie uma mensagem de texto._"
       );
       await verifyMessage(sentMessage, ticket, contact);
     }

@@ -5,7 +5,6 @@ import AppError from "../../errors/AppError";
 import { queryDialogFlow } from "./QueryDialogflow";
 import { createDialogflowSession } from "./CreateSessionDialogflow";
 
-
 interface Request {
   projectName: string;
   jsonContent: string;
@@ -16,21 +15,15 @@ interface Response {
   messages: string[];
 }
 
-
 const TestDialogflowSession = async ({
   projectName,
   jsonContent,
   language
 }: Request): Promise<Response | null> => {
   const schema = Yup.object().shape({
-    projectName: Yup.string()
-      .required()
-      .min(2),
-    jsonContent: Yup.string()
-      .required(),
-    language: Yup.string()
-      .required()
-      .min(2)
+    projectName: Yup.string().required().min(2),
+    jsonContent: Yup.string().required(),
+    language: Yup.string().required().min(2)
   });
 
   try {
@@ -50,7 +43,7 @@ const TestDialogflowSession = async ({
     projectName,
     "TestSeesion",
     "Ola",
-    language,
+    language
   );
 
   await session.close();
@@ -60,11 +53,11 @@ const TestDialogflowSession = async ({
   }
 
   const messages = [];
-  for (let message of dialogFlowReply) {
+  for (let message of dialogFlowReply.responses) {
     messages.push(message.text.text[0]);
   }
 
   return { messages };
-}
+};
 
 export default TestDialogflowSession;
