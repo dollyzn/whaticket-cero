@@ -6,6 +6,7 @@ import * as Sentry from "@sentry/node";
 import {
   Contact as WbotContact,
   Message as WbotMessage,
+  Call as WbotCall,
   MessageAck,
   Client,
   Buttons,
@@ -494,6 +495,17 @@ const isValidMsg = (msg: WbotMessage): boolean => {
   return false;
 };
 
+async function sendCallRejectMessage(call: WbotCall, wbot: Session) {
+  if (call.fromMe) return;
+
+  const contact = call.from;
+
+  await wbot.sendMessage(
+    `${contact}`,
+    "_As chamadas de voz e vídeo estão desabilitadas para esse canal de atendimento por WhatsApp 🫤, por favor, envie uma mensagem de texto._"
+  );
+}
+
 const handleMessage = async (
   msg: WbotMessage,
   wbot: Session
@@ -522,15 +534,6 @@ const handleMessage = async (
         //&& msg.type !== "multi_vcard"
       )
         return;
-
-      /*if (msg.body === "*Cero:* Atendimento finalizado.") {
-        setTimeout(async () => {
-          await UpdateTicketService({
-            ticketId: ticket.id,
-            ticketData: { status: "closed" }
-          });
-        }, 1000);
-      }*/
 
       msgContact = await wbot.getContactById(msg.to);
     } else {
@@ -755,6 +758,16 @@ const wbotMessageListener = (wbot: Session): void => {
 
   wbot.on("message_ack", async (msg, ack) => {
     handleMsgAck(msg, ack);
+  });
+
+  wbot.on("call", async call => {
+    const listSettingsService = await ListSettingsServiceOne({ key: "call" });
+    var callSetting = listSettingsService?.value;
+
+    if (callSetting === "disabled") {
+      await call.reject();
+      sendCallRejectMessage(call, wbot);
+    }
   });
 };
 
