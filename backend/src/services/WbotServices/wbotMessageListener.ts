@@ -545,7 +545,7 @@ const handleMessage = async (
     const chat = await msg.getChat();
 
     if (chat.isGroup) {
-      let msgGroupContact;
+      /*      let msgGroupContact;
 
       if (msg.fromMe) {
         msgGroupContact = await wbot.getContactById(msg.to);
@@ -554,6 +554,8 @@ const handleMessage = async (
       }
 
       groupContact = await verifyContact(msgGroupContact);
+      */
+      return;
     }
     const whatsapp = await ShowWhatsAppService(wbot.id!);
 
