@@ -397,8 +397,9 @@ const sendDialogflowAwswer = async (
 
   wbot.sendPresenceAvailable();
 
-  if (msg.type === "image" || msg.type === "document") {
+  if ((!msg.body && msg.type === "image") || msg.type === "document") {
     msg.body = "image";
+    console.log(msg.body);
   }
 
   let dialogFlowReply = await queryDialogFlow(
