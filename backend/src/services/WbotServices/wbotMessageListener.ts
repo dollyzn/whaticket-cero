@@ -110,7 +110,7 @@ const verifyMediaMessage = async (
     quotedMsgId: quotedMsg?.id
   };
 
-  await ticket.update({ lastMessage: msg.body });
+  await ticket.update({ lastMessage: msg.body || "Arquivo de mídia" });
   const newMessage = await CreateMessageService({ messageData });
 
   return newMessage;
