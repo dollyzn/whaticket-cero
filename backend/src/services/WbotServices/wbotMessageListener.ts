@@ -429,7 +429,25 @@ const sendDialogflowAwswer = async (
   await delay(3000);
 
   for (let message of dialogFlowReply.responses) {
-    await sendDelayedMessages(wbot, ticket, contact, message.text.text[0]);
+    if (dialogFlowReply.intentName === "Confirmar Nome") {
+      let sendButtonMessage = true;
+      await sendDelayedMessages(
+        wbot,
+        ticket,
+        contact,
+        message.text.text[0],
+        sendButtonMessage
+      );
+    } else {
+      let sendButtonMessage = false;
+      await sendDelayedMessages(
+        wbot,
+        ticket,
+        contact,
+        message.text.text[0],
+        sendButtonMessage
+      );
+    }
   }
 };
 
@@ -437,15 +455,24 @@ async function sendDelayedMessages(
   wbot: Session,
   ticket: Ticket,
   contact: Contact,
-  message: string
+  message: string,
+  sendButtonMessage: boolean
 ) {
-  //const body = message.replace(/\\n/g, "");
-  //const linesOfBody = body.split('\n');
   function delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
-  // for(let message of linesOfBody) {
-  if (message === "Atendimento finalizado.") {
+
+  if (sendButtonMessage) {
+    let button = new Buttons(message, [{ body: "Sim" }, { body: "Não" }]);
+
+    const sentMessage = await wbot.sendMessage(
+      `${contact.number}@c.us`,
+      button
+    );
+
+    await verifyMessage(sentMessage, ticket, contact);
+    await delay(5000);
+  } else if (message === "Atendimento finalizado.") {
     await delay(10000);
 
     const sentMessage = await wbot.sendMessage(
@@ -473,7 +500,6 @@ async function sendDelayedMessages(
     await verifyMessage(sentMessage, ticket, contact);
     await delay(5000);
   }
-  //}
 }
 
 const isValidMsg = (msg: WbotMessage): boolean => {
