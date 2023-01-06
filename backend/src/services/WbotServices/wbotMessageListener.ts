@@ -467,7 +467,10 @@ async function sendDelayedMessages(
   }
 
   if (sendButtonMessage) {
-    let button = new Buttons(message, [{ body: "Sim" }, { body: "Não" }]);
+    let button = new Buttons(`*${ticket.queue.dialogflow.name}:* ${message}`, [
+      { body: "Sim" },
+      { body: "Não" }
+    ]);
 
     const sentMessage = await wbot.sendMessage(
       `${contact.number}@c.us`,
