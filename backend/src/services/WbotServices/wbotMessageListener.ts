@@ -102,7 +102,7 @@ const verifyMediaMessage = async (
     id: msg.id.id,
     ticketId: ticket.id,
     contactId: msg.fromMe ? undefined : contact.id,
-    body: msg.body ,
+    body: msg.body,
     fromMe: msg.fromMe,
     read: msg.fromMe,
     mediaUrl: media.filename,
@@ -110,7 +110,11 @@ const verifyMediaMessage = async (
     quotedMsgId: quotedMsg?.id
   };
 
-  await ticket.update({ lastMessage: msg.body || "Arquivo de mídia" });
+  if (msg.body) {
+    msg.body = `📄 ${msg.body}`;
+  }
+
+  await ticket.update({ lastMessage: msg.body || "📷 Foto" });
   const newMessage = await CreateMessageService({ messageData });
 
   return newMessage;
@@ -308,7 +312,7 @@ const verifyQueue = async (
       } else if (queue.name.substring(0, 6) == "Fila 2") {
         queuename = "Sou DENTISTA";
       } else if (queue.name.substring(0, 6) == "Fila 3") {
-        queuename = "Arquivos ou Feedback";
+        queuename = "Comprovantes e Requisições";
       } else {
         queuename = "Nome indefinido (backend)";
       }
@@ -529,7 +533,7 @@ async function sendCallRejectMessage(call: WbotCall, wbot: Session) {
 
   await wbot.sendMessage(
     `${contact}`,
-    "_As chamadas de voz e vídeo estão desabilitadas para esse canal de atendimento por WhatsApp 🫤, por favor, envie uma mensagem de texto._"
+    "_As chamadas de voz e vídeo por WhatsApp estão desabilitadas para este canal de atendimento, por favor, envie uma mensagem de *texto*._"
   );
 }
 
