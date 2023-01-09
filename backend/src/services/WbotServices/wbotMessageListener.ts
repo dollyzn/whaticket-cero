@@ -1,6 +1,7 @@
 import { join } from "path";
 import { promisify } from "util";
 import { writeFile } from "fs";
+import { Op } from "sequelize";
 import * as Sentry from "@sentry/node";
 
 import {
@@ -622,12 +623,27 @@ const handleMessage = async (
     )
       return;
 
-    const ticket = await FindOrCreateTicketService(
-      contact,
-      wbot.id!,
-      unreadMessages,
-      groupContact
-    );
+    let ticket: Ticket;
+
+    let findticket = await Ticket.findOne({
+      where: {
+        status: {
+          [Op.or]: ["open", "pending"]
+        },
+        contactId: groupContact ? groupContact.id : contact.id
+      }
+    });
+    if (!findticket && msg.fromMe) {
+      logger.error("Whatsapp message sent outside whaticket app");
+      return;
+    } else {
+      ticket = await FindOrCreateTicketService(
+        contact,
+        wbot.id!,
+        unreadMessages,
+        groupContact
+      );
+    }
 
     if (msg.hasMedia) {
       await verifyMediaMessage(msg, ticket, contact);
