@@ -662,18 +662,14 @@ const handleMessage = async (
       debouncedSentMessage();
     }
 
-    if (
-      msg.type === "audio" ||
-      (msg.type === "ptt" &&
-        !msg.fromMe &&
-        !chat.isGroup &&
-        !contact.acceptAudioMessage)
-    ) {
-      const sentMessage = await wbot.sendMessage(
-        `${contact.number}@c.us`,
-        "_Infelizmente não conseguimos escutar nem enviar áudios por este canal de atendimento 😕, por favor, envie uma mensagem de *texto*._"
-      );
-      await verifyMessage(sentMessage, ticket, contact);
+    if (msg.type === "audio" || msg.type === "ptt") {
+      if (!msg.fromMe && !chat.isGroup && !contact.acceptAudioMessage) {
+        const sentMessage = await wbot.sendMessage(
+          `${contact.number}@c.us`,
+          "_Infelizmente não conseguimos escutar nem enviar áudios por este canal de atendimento 😕, por favor, envie uma mensagem de *texto*._"
+        );
+        await verifyMessage(sentMessage, ticket, contact);
+      }
     }
 
     if (msg.type === "vcard") {
