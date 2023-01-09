@@ -110,11 +110,29 @@ const verifyMediaMessage = async (
     quotedMsgId: quotedMsg?.id
   };
 
-  if (msg.body) {
+  if (msg.type === "audio" || msg.type === "ptt") {
+    msg.body = "🎤 Áudio";
+  }
+
+  if (msg.type === "video") {
+    msg.body = "🎥 Vídeo";
+  }
+
+  if (msg.type === "image") {
+    msg.body = "📷 Foto";
+  }
+
+  if (msg.type === "document") {
     msg.body = `📄 ${msg.body}`;
   }
 
-  await ticket.update({ lastMessage: msg.body || "📷 Foto" });
+  if (msg.type === "sticker") {
+    msg.body = "💌 Figurinha";
+  }
+
+  await ticket.update({
+    lastMessage: msg.body || "Arquivo de mídia desconhecido"
+  });
   const newMessage = await CreateMessageService({ messageData });
 
   return newMessage;
