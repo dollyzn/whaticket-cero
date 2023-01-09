@@ -634,7 +634,14 @@ const handleMessage = async (
       ticket.queue.dialogflow &&
       contact.useDialogflow
     ) {
-      await sendDialogflowAwswer(wbot, ticket, msg, contact, chat);
+      const debouncedSentMessage = debounce(
+        async () => {
+          await sendDialogflowAwswer(wbot, ticket, msg, contact, chat);
+        },
+        5000,
+        ticket.id
+      );
+      debouncedSentMessage();
     }
 
     if (
