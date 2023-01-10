@@ -96,7 +96,7 @@ const verifyMediaMessage = async (
     );
   } catch (err) {
     Sentry.captureException(err);
-    logger.error(err);
+    logger.error(err!);
   }
 
   const messageData = {
@@ -120,7 +120,11 @@ const verifyMediaMessage = async (
   }
 
   if (msg.type === "image") {
-    msg.body = "📷 Foto";
+    if (msg.body) {
+      msg.body = `📷 ${msg.body}`;
+    } else {
+      msg.body = "📷 Foto";
+    }
   }
 
   if (msg.type === "document") {
@@ -420,9 +424,17 @@ const sendDialogflowAwswer = async (
 
   wbot.sendPresenceAvailable();
 
-  if ((!msg.body && msg.type === "image") || msg.type === "document") {
+  if (msg.type === "image" || msg.type === "document") {
     msg.body = "image";
-    console.log(msg.body);
+  }
+
+  if (msg.type === "buttons_response") {
+    if (msg.body === "Sim") {
+      msg.body = "buttons_response_yes";
+    }
+    if (msg.body === "Não") {
+      msg.body = "buttons_response_no";
+    }
   }
 
   let dialogFlowReply = await queryDialogFlow(
@@ -672,7 +684,7 @@ const handleMessage = async (
         async () => {
           await sendDialogflowAwswer(wbot, ticket, msg, contact, chat);
         },
-        5000,
+        8000,
         ticket.id
       );
       debouncedSentMessage();
