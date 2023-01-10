@@ -116,7 +116,11 @@ const verifyMediaMessage = async (
   }
 
   if (msg.type === "video") {
-    msg.body = "🎥 Vídeo";
+    if (msg.body) {
+      msg.body = `🎥 ${msg.body}`;
+    } else {
+      msg.body = "🎥 Vídeo";
+    }
   }
 
   if (msg.type === "image") {
@@ -424,7 +428,7 @@ const sendDialogflowAwswer = async (
 
   wbot.sendPresenceAvailable();
 
-  if (msg.type === "image" || msg.type === "document") {
+  if (msg.type === "document") {
     msg.body = "image";
   }
 
