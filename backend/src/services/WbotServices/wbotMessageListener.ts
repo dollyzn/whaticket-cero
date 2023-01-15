@@ -8,6 +8,7 @@ import {
   Contact as WbotContact,
   Message as WbotMessage,
   Call as WbotCall,
+  MessageMedia,
   MessageAck,
   Client,
   Buttons,
@@ -302,7 +303,10 @@ const verifyQueue = async (
 
         if (choosenQueue === queues[0]) {
           try {
-            let button = new Buttons(body, [{ body: "Sim" }, { body: "Não" }]);
+            let button = new Buttons(body, [
+              { body: "Sim", id: "startAtendanceYes" },
+              { body: "Não", id: "startAtendanceNo" }
+            ]);
 
             const sentMessage = await wbot.sendMessage(
               `${contact.number}@c.us`,
@@ -432,13 +436,11 @@ const sendDialogflowAwswer = async (
     msg.body = "image";
   }
 
-  if (msg.type === "buttons_response") {
-    if (msg.body === "Sim") {
-      msg.body = "buttons_response_yes";
-    }
-    if (msg.body === "Não") {
-      msg.body = "buttons_response_no";
-    }
+  if (msg.selectedButtonId === "startAtendanceYes") {
+    msg.body = "buttons_response_yes";
+  }
+  if (msg.selectedButtonId === "startAtendanceNo") {
+    msg.body = "buttons_response_no";
   }
 
   let dialogFlowReply = await queryDialogFlow(
@@ -468,25 +470,16 @@ const sendDialogflowAwswer = async (
   await delay(3000);
 
   for (let message of dialogFlowReply.responses) {
-    if (dialogFlowReply.intentName === "Confirmar Nome") {
-      let sendButtonMessage = true;
-      await sendDelayedMessages(
-        wbot,
-        ticket,
-        contact,
-        message.text.text[0],
-        sendButtonMessage
-      );
-    } else {
-      let sendButtonMessage = false;
-      await sendDelayedMessages(
-        wbot,
-        ticket,
-        contact,
-        message.text.text[0],
-        sendButtonMessage
-      );
-    }
+    await sendDelayedMessages(
+      wbot,
+      ticket,
+      contact,
+      message.text.text[0],
+      dialogFlowReply.button.button1 ? dialogFlowReply.button : undefined,
+      dialogFlowReply.button.image
+        ? dialogFlowReply.button.image.stringValue
+        : undefined
+    );
   }
 };
 
@@ -495,25 +488,71 @@ async function sendDelayedMessages(
   ticket: Ticket,
   contact: Contact,
   message: string,
-  sendButtonMessage: boolean
+  sendButtonMessage:
+    | {
+        button1: { stringValue: string };
+        button2: { stringValue: string };
+        button3: { stringValue: string };
+      }
+    | undefined,
+  sendImage: string | undefined
 ) {
   function delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   if (sendButtonMessage) {
-    let button = new Buttons(`*${ticket.queue.dialogflow.name}:* ${message}`, [
-      { body: "Sim" },
-      { body: "Não" }
-    ]);
+    if (
+      sendButtonMessage.button1 &&
+      sendButtonMessage.button2 &&
+      sendButtonMessage.button3
+    ) {
+      let button = new Buttons(
+        `*${ticket.queue.dialogflow.name}:* ${message}`,
+        [
+          { body: sendButtonMessage.button1.stringValue },
+          { body: sendButtonMessage.button2.stringValue },
+          { body: sendButtonMessage.button3.stringValue }
+        ]
+      );
 
-    const sentMessage = await wbot.sendMessage(
-      `${contact.number}@c.us`,
-      button
-    );
+      const sentMessage = await wbot.sendMessage(
+        `${contact.number}@c.us`,
+        button
+      );
 
-    await verifyMessage(sentMessage, ticket, contact);
-    await delay(5000);
+      await verifyMessage(sentMessage, ticket, contact);
+      await delay(5000);
+    } else if (sendButtonMessage.button1 && sendButtonMessage.button2) {
+      let button = new Buttons(
+        `*${ticket.queue.dialogflow.name}:* ${message}`,
+        [
+          { body: sendButtonMessage.button1.stringValue },
+          { body: sendButtonMessage.button2.stringValue }
+        ]
+      );
+
+      const sentMessage = await wbot.sendMessage(
+        `${contact.number}@c.us`,
+        button
+      );
+
+      await verifyMessage(sentMessage, ticket, contact);
+      await delay(5000);
+    } else {
+      let button = new Buttons(
+        `*${ticket.queue.dialogflow.name}:* ${message}`,
+        [{ body: sendButtonMessage.button1.stringValue }]
+      );
+
+      const sentMessage = await wbot.sendMessage(
+        `${contact.number}@c.us`,
+        button
+      );
+
+      await verifyMessage(sentMessage, ticket, contact);
+      await delay(5000);
+    }
   } else if (message === "Atendimento finalizado.") {
     await delay(10000);
 
@@ -540,6 +579,23 @@ async function sendDelayedMessages(
     );
 
     await verifyMessage(sentMessage, ticket, contact);
+    await delay(5000);
+  }
+
+  if (sendImage) {
+    const newMedia = await MessageMedia.fromUrl(sendImage, {
+      unsafeMime: true
+    });
+    const sentMessage = await wbot.sendMessage(
+      `${contact.number}@c.us`,
+      newMedia,
+      {
+        sendAudioAsVoice: true
+      }
+    );
+
+    await verifyMessage(sentMessage, ticket, contact);
+    await ticket.update({ lastMessage: "📷 Foto" });
     await delay(5000);
   }
 }
