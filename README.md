@@ -1,4 +1,4 @@
-# WhaTicket
+# CeroTicket
 
 **NOTE**: The new version of whatsapp-web.js required Node 14. Upgrade your installations to keep using it.
 
