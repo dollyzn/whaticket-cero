@@ -21,7 +21,7 @@ import {
 
 import { Visibility, VisibilityOff } from '@material-ui/icons';
 
-import logo from "../../assets/logocero.png";
+import logo from "../../assets/login-logo.png";
 
 import { makeStyles } from "@material-ui/core/styles";
 
@@ -94,7 +94,7 @@ const SignUp = () => {
 		<Container component="main" maxWidth="xs">
 			<CssBaseline />
 			<div className={classes.paper}>
-				 <img src={logo} width="40%" alt="logo login"></img>
+				 <img src={logo} width="100%" alt="logo login"></img>
                                 <Box marginTop={5} marginBottom={2}>
 				<Typography component="h1" variant="h5">
 					{i18n.t("signup.title")}
