@@ -16,7 +16,7 @@ import {
 
 import { Visibility, VisibilityOff } from '@material-ui/icons';
 
-import logo from "../../../public/logo.png";
+import logo from "../../assets/login-logo.png";
 
 import { makeStyles } from "@material-ui/core/styles";
 
