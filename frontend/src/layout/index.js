@@ -223,7 +223,7 @@ const LoggedInLayout = ({ children }) => {
            <img 
             src={logo} 
             alt="logo"
-            width="100%"
+            width="115px"
             >
             </img>
           </Typography>
