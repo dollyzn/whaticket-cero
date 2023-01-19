@@ -20,6 +20,7 @@
     "@types/express-serve-static-core": "^4.17.21",
     "@types/pino": "^6.3.4",
     "actions-on-google": "^3.0.0",
+    "axios": "^1.2.3",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",

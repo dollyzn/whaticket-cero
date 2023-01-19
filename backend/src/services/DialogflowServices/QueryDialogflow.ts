@@ -48,7 +48,7 @@ async function queryDialogFlow(
 
         const responses = intentResponse?.queryResult?.fulfillmentMessages;
         const endConversation = intentResponse?.queryResult?.diagnosticInfo?.fields?.end_conversation?.boolValue;
-        const button = intentResponse?.queryResult?.parameters?.fields;
+        const parameters = intentResponse?.queryResult?.parameters?.fields;
 
         if (responses?.length === 0) {
             return null;
@@ -56,7 +56,7 @@ async function queryDialogFlow(
             return {
                 responses,
                 endConversation,
-                button
+                parameters
             }
         }
     } catch (error) {

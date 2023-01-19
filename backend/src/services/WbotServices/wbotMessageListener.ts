@@ -33,6 +33,8 @@ import { queryDialogFlow } from "../DialogflowServices/QueryDialogflow";
 import { createDialogflowSessionWithModel } from "../DialogflowServices/CreateSessionDialogflow";
 import ListSettingsServiceOne from "../SettingServices/ListSettingsServiceOne";
 import ToggleUseDialogflowService from "../ContactServices/ToggleUseDialogflowContactService";
+import axios from "axios";
+import { addMinutes, min } from "date-fns";
 
 interface Session extends Client {
   id?: number;
@@ -416,6 +418,157 @@ const verifyQueue = async (
   }
 };
 
+const createAppointmentBooking = async (
+  wbot: Session,
+  ticket: Ticket,
+  contact: Contact,
+  unity: string,
+  name: string,
+  start: string,
+  end: string,
+  email: string
+): Promise<void> => {
+  function delay(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  let unit: string;
+  let service;
+
+  if (unity === "274d49ec-b5bc-4c22-b77f-b928181c7a13") {
+    unit = "Cero Unidade II";
+    service = "b24648fc-16b5-4b89-a941-710583c581ec";
+  }
+  if (unity === "ad86045f-554f-4294-8228-7ed93e34fb54") {
+    unit = "Cero Matriz";
+    service = "6ec28aa9-41e5-4d55-8120-71b760c4eee8";
+  }
+  if (unity === "e8dde240-770c-45be-9d2a-7a5abb1a2a0e") {
+    unit = "Cero Macaé";
+    service = "f3f901f8-74fb-476f-9708-42c079240f32";
+  }
+  if (unity === "c7d4159c-b16e-49df-98db-e3150ed4df69") {
+    unit = "Cero São Francisco";
+    service = "2302d07f-d218-4820-868b-53dfe67cdf3f";
+  }
+  if (unity === "f330cefd-3b50-4da6-92a7-7e44fdc6535d") {
+    unit = "Cero São João da Barra";
+    service = "6b3e66ee-a5e7-4f61-ab30-d5e2520bd677";
+  }
+
+  const options = {
+    method: "POST",
+    url: `https://api.reservio.com/v2/businesses/${unity}/bookings`,
+    headers: {
+      cookie: "_nss=1",
+      Accept: "application/vnd.api+json",
+      Authorization: "Bearer accessToken"
+    },
+    data: {
+      data: {
+        type: "booking",
+        attributes: {
+          bookedClientName: name,
+          note: "Agendamento feito pelo Pedro no WhatsApp"
+        },
+        relationships: {
+          event: {
+            data: {
+              type: "event",
+              attributes: {
+                start: start,
+                end: end,
+                name: name,
+                eventType: "appointment"
+              },
+              relationships: {
+                service: {
+                  data: {
+                    type: "service",
+                    id: service
+                  }
+                }
+              }
+            }
+          },
+          client: {
+            data: {
+              type: "client",
+              attributes: {
+                name: name,
+                email: email,
+                phone: contact.number
+              }
+            }
+          }
+        }
+      }
+    }
+  };
+
+  axios
+    .request(options)
+    .then(async function (response) {
+      console.log(response.data);
+
+      const date = new Date(start);
+
+      let year = date.getFullYear();
+      let month = date.getMonth() + 1;
+      let day = date.getDate();
+      let hour = date.getHours();
+      let minutes = date.getMinutes();
+      let mon;
+      let dy;
+      let min;
+
+      if (month < 10) {
+        mon = `0${month}`;
+      } else {
+        mon = month;
+      }
+      if (day < 10) {
+        dy = `0${day}`;
+      } else {
+        dy = day;
+      }
+      if (minutes < 10) {
+        min = `0${minutes}`;
+      } else {
+        min = minutes;
+      }
+
+      await delay(5000);
+      const sentMessage = await wbot.sendMessage(
+        `${contact.number}@c.us`,
+        `*${ticket.queue.dialogflow.name}:* Agendamento concluído com sucesso!\n\nNome: ${name}\nNúmero: ${contact.number}\nE-mail: ${email}\nEm: ${unit}\nData: ${dy}/${mon}/${year}\nHora: ${hour}:${min};\n\nPosso ajudar com algo mais?
+        `
+      );
+
+      await verifyMessage(sentMessage, ticket, contact);
+      await ToggleUseDialogflowService({
+        contactId: ticket.contact.id.toString(),
+        setUseDialogFlow: { useDialogflow: true }
+      });
+      await delay(5000);
+    })
+    .catch(async function (error) {
+      console.error(error);
+      await delay(5000);
+      const sentMessage = await wbot.sendMessage(
+        `${contact.number}@c.us`,
+        `*${ticket.queue.dialogflow.name}:* Infelizmente não consegui concluir seu agendamento. Também é possível realizar o exame por ordem de chegada\n\nPosso ajudar com algo mais?`
+      );
+
+      await verifyMessage(sentMessage, ticket, contact);
+      await ToggleUseDialogflowService({
+        contactId: ticket.contact.id.toString(),
+        setUseDialogFlow: { useDialogflow: true }
+      });
+      await delay(5000);
+    });
+};
+
 const sendDialogflowAwswer = async (
   wbot: Session,
   ticket: Ticket,
@@ -470,14 +623,20 @@ const sendDialogflowAwswer = async (
   await delay(3000);
 
   for (let message of dialogFlowReply.responses) {
+    console.log(dialogFlowReply.parameters);
     await sendDelayedMessages(
       wbot,
       ticket,
       contact,
       message.text.text[0],
-      dialogFlowReply.button.button1 ? dialogFlowReply.button : undefined,
-      dialogFlowReply.button.image
-        ? dialogFlowReply.button.image.stringValue
+      dialogFlowReply.parameters.image
+        ? dialogFlowReply.parameters.image.stringValue
+        : undefined,
+      dialogFlowReply.parameters.button1
+        ? dialogFlowReply.parameters
+        : undefined,
+      dialogFlowReply.parameters.booking
+        ? dialogFlowReply.parameters
         : undefined
     );
   }
@@ -488,6 +647,7 @@ async function sendDelayedMessages(
   ticket: Ticket,
   contact: Contact,
   message: string,
+  sendImage: string | undefined,
   sendButtonMessage:
     | {
         button1: { stringValue: string };
@@ -495,10 +655,70 @@ async function sendDelayedMessages(
         button3: { stringValue: string };
       }
     | undefined,
-  sendImage: string | undefined
+  createBooking:
+    | {
+        unity: { stringValue: string };
+        name: { stringValue: string };
+        start: {
+          structValue: { fields: { date_time: { stringValue: string } } };
+        };
+        email: { stringValue: string };
+        service: { stringValue: string };
+      }
+    | undefined
 ) {
   function delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  if (createBooking?.email.stringValue) {
+    await ToggleUseDialogflowService({
+      contactId: ticket.contact.id.toString(),
+      setUseDialogFlow: { useDialogflow: false }
+    });
+    var startdate = new Date(
+      createBooking.start.structValue.fields.date_time.stringValue
+    );
+
+    var endDate = addMinutes(startdate, 15);
+    function toIsoString(date: Date) {
+      var tzo = -date.getTimezoneOffset(),
+        dif = tzo >= 0 ? "+" : "-",
+        pad = function (num: number) {
+          return (num < 10 ? "0" : "") + num;
+        };
+
+      return (
+        date.getFullYear() +
+        "-" +
+        pad(date.getMonth() + 1) +
+        "-" +
+        pad(date.getDate()) +
+        "T" +
+        pad(date.getHours()) +
+        ":" +
+        pad(date.getMinutes()) +
+        ":" +
+        pad(date.getSeconds()) +
+        dif +
+        pad(Math.floor(Math.abs(tzo) / 60)) +
+        ":" +
+        pad(Math.abs(tzo) % 60)
+      );
+    }
+
+    let end = toIsoString(endDate);
+
+    await createAppointmentBooking(
+      wbot,
+      ticket,
+      contact,
+      createBooking.unity.stringValue,
+      createBooking.name.stringValue,
+      createBooking.start.structValue.fields.date_time.stringValue,
+      end,
+      createBooking.email.stringValue
+    );
   }
 
   if (sendButtonMessage) {
