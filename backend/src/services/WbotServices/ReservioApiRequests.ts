@@ -346,10 +346,28 @@ const listSlotsAvailable = async (
       }
 
       if (!options) {
+        const date = new Date(start);
+
+        let year = date.getFullYear();
+        let month = date.getMonth() + 1;
+        let day = date.getDate();
+        let mon;
+        let dy;
+
+        if (month < 10) {
+          mon = `0${month}`;
+        } else {
+          mon = month;
+        }
+        if (day < 10) {
+          dy = `0${day}`;
+        } else {
+          dy = day;
+        }
         await delay(5000);
         const sentMessage = await wbot.sendMessage(
           `${contact.number}@c.us`,
-          `*${ticket.queue.dialogflow.name}:* Infelizmente não há nenhum horário disponível para este dia\n\nCaso queira recomeçar digite "agendar" novamente`
+          `*${ticket.queue.dialogflow.name}:* Infelizmente não há nenhum horário disponível para o dia ${dy}/${mon}/${year}.. Informe outra data`
         );
 
         await verifyMessage(sentMessage, ticket, contact);
