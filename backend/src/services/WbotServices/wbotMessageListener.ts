@@ -12,6 +12,7 @@ import {
   MessageAck,
   Client,
   Buttons,
+  List,
   Chat
 } from "whatsapp-web.js";
 
@@ -33,10 +34,10 @@ import { queryDialogFlow } from "../DialogflowServices/QueryDialogflow";
 import { createDialogflowSessionWithModel } from "../DialogflowServices/CreateSessionDialogflow";
 import ListSettingsServiceOne from "../SettingServices/ListSettingsServiceOne";
 import ToggleUseDialogflowService from "../ContactServices/ToggleUseDialogflowContactService";
-import { addMinutes } from "date-fns";
 import {
   createAppointmentBooking,
-  listSlotsAvailable
+  listSlotsAvailable,
+  listServices
 } from "./ReservioApiRequests";
 
 interface Session extends Client {
@@ -55,6 +56,19 @@ interface Booking {
   previous: { stringValue: string };
   email: { stringValue: string };
   service: { stringValue: string };
+  unityName: { stringValue: string };
+}
+interface Lists {
+  option0: { stringValue: string };
+  option1: { stringValue: string };
+  option2: { stringValue: string };
+  option3: { stringValue: string };
+  option4: { stringValue: string };
+  option5: { stringValue: string };
+  option6: { stringValue: string };
+  option7: { stringValue: string };
+  option8: { stringValue: string };
+  option9: { stringValue: string };
 }
 
 const writeFileAsync = promisify(writeFile);
@@ -469,7 +483,7 @@ const sendDialogflowAwswer = async (
     msg.body,
     ticket.queue.dialogflow.language
   );
-  if (dialogFlowReply === null) {
+  if (dialogFlowReply.responses === null) {
     return;
   }
 
@@ -484,11 +498,17 @@ const sendDialogflowAwswer = async (
     ? dialogFlowReply.parameters.image.stringValue
     : undefined;
 
+  //limited to 3 itens
   const button = dialogFlowReply.parameters.button1
     ? dialogFlowReply.parameters
     : undefined;
 
-  let booking = dialogFlowReply.parameters.booking
+  const booking = dialogFlowReply.parameters.booking
+    ? dialogFlowReply.parameters
+    : undefined;
+
+  //limited to 10 itens
+  const list = dialogFlowReply.parameters.option1
     ? dialogFlowReply.parameters
     : undefined;
 
@@ -499,16 +519,21 @@ const sendDialogflowAwswer = async (
   }
 
   await delay(3000);
-
+  let lastMessage;
+  for (let message of dialogFlowReply.responses) {
+    lastMessage = message.text.text[0];
+  }
   for (let message of dialogFlowReply.responses) {
     await sendDelayedMessages(
       wbot,
       ticket,
       contact,
       message.text.text[0],
+      lastMessage,
       image,
       button,
-      booking
+      booking,
+      list
     );
   }
 };
@@ -518,151 +543,156 @@ async function sendDelayedMessages(
   ticket: Ticket,
   contact: Contact,
   message: string,
+  lastMessage: string,
   sendImage: string | undefined,
   sendButtonMessage: Button | undefined,
-  createBooking: Booking | undefined
+  createBooking: Booking | undefined,
+  sendListMessage: Lists | undefined
 ) {
   function delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   if (createBooking?.email.stringValue) {
-    const booking = createBooking.booking.stringValue;
-    const unity = createBooking.unity.stringValue;
-    const name = createBooking.name.structValue.fields.name.stringValue;
-    const email = createBooking.email.stringValue;
-    const date = createBooking.start.stringValue;
+    const booking = createBooking.booking?.stringValue
+      ? createBooking.booking.stringValue
+      : undefined;
+    const unity = createBooking.unity?.stringValue
+      ? createBooking.unity.stringValue
+      : undefined;
+    const service = createBooking.service?.stringValue
+      ? createBooking.service?.stringValue
+      : undefined;
+    const name = createBooking.name?.structValue.fields.name.stringValue
+      ? createBooking.name.structValue.fields.name.stringValue
+      : undefined;
+    const email = createBooking.email?.stringValue
+      ? createBooking.email.stringValue
+      : undefined;
+    const date = createBooking.start?.stringValue
+      ? createBooking.start.stringValue
+      : undefined;
+    const previous = createBooking.previous?.stringValue
+      ? createBooking.previous?.stringValue
+      : undefined;
+    const unityName = createBooking.unityName?.stringValue
+      ? createBooking.unityName?.stringValue
+      : undefined;
 
     await ToggleUseDialogflowService({
       contactId: ticket.contact.id.toString(),
       setUseDialogFlow: { useDialogflow: false }
     });
+    if (booking === "service") {
+      await listServices(wbot, ticket, contact, unity);
+    }
     if (booking === "timeSlot") {
-      await listSlotsAvailable(wbot, ticket, contact, unity, name, email, date);
+      await listSlotsAvailable(wbot, ticket, contact, unity, service, date);
     }
     if (booking === "createBooking") {
-      let previous = createBooking.previous.stringValue;
-
-      let startdate = new Date(date);
-      let previousDate = new Date(previous);
-
-      let endDate = addMinutes(startdate, 15);
-
-      function toIsoString(date: Date, dateInc: Date) {
-        var tzo = -date.getTimezoneOffset(),
-          dif = tzo >= 0 ? "+" : "-",
-          pad = function (num: number) {
-            return (num < 10 ? "0" : "") + num;
-          };
-
-        if (dateInc.getHours() > 18) {
-          return (
-            date.getFullYear() +
-            "-" +
-            pad(date.getMonth() + 1) +
-            "-" +
-            pad(date.getDate()) +
-            "T" +
-            pad(dateInc.getHours() - 12) +
-            ":" +
-            pad(dateInc.getMinutes()) +
-            ":" +
-            pad(dateInc.getSeconds()) +
-            dif +
-            pad(Math.floor(Math.abs(tzo) / 60)) +
-            ":" +
-            pad(Math.abs(tzo) % 60)
-          );
-        } else {
-          return (
-            date.getFullYear() +
-            "-" +
-            pad(date.getMonth() + 1) +
-            "-" +
-            pad(date.getDate()) +
-            "T" +
-            pad(dateInc.getHours()) +
-            ":" +
-            pad(dateInc.getMinutes()) +
-            ":" +
-            pad(dateInc.getSeconds()) +
-            dif +
-            pad(Math.floor(Math.abs(tzo) / 60)) +
-            ":" +
-            pad(Math.abs(tzo) % 60)
-          );
-        }
-      }
-
-      let end = toIsoString(previousDate, endDate);
-
       await createAppointmentBooking(
         wbot,
         ticket,
         contact,
         unity,
+        service,
         name,
         date,
         previous,
-        end,
-        email
+        email,
+        unityName
       );
     }
   }
 
-  if (sendButtonMessage) {
-    if (
-      sendButtonMessage.button1 &&
-      sendButtonMessage.button2 &&
-      sendButtonMessage.button3
-    ) {
-      let button = new Buttons(
-        `*${ticket.queue.dialogflow.name}:* ${message}`,
-        [
-          { body: sendButtonMessage.button1.stringValue },
-          { body: sendButtonMessage.button2.stringValue },
-          { body: sendButtonMessage.button3.stringValue }
-        ]
-      );
+  if (sendButtonMessage && message === lastMessage) {
+    let options;
+    function listButtonOptions(objButton: any) {
+      let i = 0;
+      let options = [];
 
-      const sentMessage = await wbot.sendMessage(
-        `${contact.number}@c.us`,
-        button
-      );
+      for (let opt in objButton) {
+        options[i] = { body: objButton[opt].stringValue };
+        i++;
+      }
 
-      await verifyMessage(sentMessage, ticket, contact);
-      await delay(5000);
-    } else if (sendButtonMessage.button1 && sendButtonMessage.button2) {
-      let button = new Buttons(
-        `*${ticket.queue.dialogflow.name}:* ${message}`,
-        [
-          { body: sendButtonMessage.button1.stringValue },
-          { body: sendButtonMessage.button2.stringValue }
-        ]
-      );
-
-      const sentMessage = await wbot.sendMessage(
-        `${contact.number}@c.us`,
-        button
-      );
-
-      await verifyMessage(sentMessage, ticket, contact);
-      await delay(5000);
-    } else {
-      let button = new Buttons(
-        `*${ticket.queue.dialogflow.name}:* ${message}`,
-        [{ body: sendButtonMessage.button1.stringValue }]
-      );
-
-      const sentMessage = await wbot.sendMessage(
-        `${contact.number}@c.us`,
-        button
-      );
-
-      await verifyMessage(sentMessage, ticket, contact);
-      await delay(5000);
+      return options;
     }
-  } else if (message === "Atendimento finalizado.") {
+
+    options = listButtonOptions(sendButtonMessage);
+
+    let button = new Buttons(
+      `*${ticket.queue.dialogflow.name}:* ${message}`,
+      options
+    );
+
+    const sentMessage = await wbot.sendMessage(
+      `${contact.number}@c.us`,
+      button
+    );
+
+    await verifyMessage(sentMessage, ticket, contact);
+    await delay(5000);
+  } else if (sendListMessage && message === lastMessage) {
+    let options;
+
+    function listOptions(listObj: any) {
+      let i = 0;
+      let options = [];
+      for (let opt in listObj) {
+        options[i] = { title: listObj[opt].stringValue };
+        i++;
+      }
+      return options;
+    }
+
+    options = listOptions(sendListMessage);
+
+    let sections = [
+      {
+        title: "Opções",
+        rows: options
+      }
+    ];
+
+    let list = new List(
+      `*${ticket.queue.dialogflow.name}:* ` + message,
+      "Clique aqui",
+      sections
+    );
+
+    const sentMessage = await wbot.sendMessage(`${contact.number}@c.us`, list);
+
+    await verifyMessage(sentMessage, ticket, contact);
+    await delay(5000);
+  } else {
+    const sentMessage = await wbot.sendMessage(
+      `${contact.number}@c.us`,
+      `*${ticket.queue.dialogflow.name}:* ` + message
+    );
+
+    await verifyMessage(sentMessage, ticket, contact);
+    await delay(5000);
+  }
+
+  if (sendImage && message === lastMessage) {
+    const newMedia = await MessageMedia.fromUrl(sendImage, {
+      unsafeMime: true
+    });
+    const sentMessage = await wbot.sendMessage(
+      `${contact.number}@c.us`,
+      newMedia,
+      {
+        sendAudioAsVoice: true
+      }
+    );
+
+    await verifyMessage(sentMessage, ticket, contact);
+    await ticket.update({ lastMessage: "📷 Foto" });
+    await delay(5000);
+  }
+
+  if (message === "Atendimento finalizado.") {
     await delay(10000);
 
     const sentMessage = await wbot.sendMessage(
@@ -681,31 +711,6 @@ async function sendDelayedMessages(
         ticketData: { status: "closed" }
       });
     }, 3000);
-  } else {
-    const sentMessage = await wbot.sendMessage(
-      `${contact.number}@c.us`,
-      `*${ticket.queue.dialogflow.name}:* ` + message
-    );
-
-    await verifyMessage(sentMessage, ticket, contact);
-    await delay(5000);
-  }
-
-  if (sendImage) {
-    const newMedia = await MessageMedia.fromUrl(sendImage, {
-      unsafeMime: true
-    });
-    const sentMessage = await wbot.sendMessage(
-      `${contact.number}@c.us`,
-      newMedia,
-      {
-        sendAudioAsVoice: true
-      }
-    );
-
-    await verifyMessage(sentMessage, ticket, contact);
-    await ticket.update({ lastMessage: "📷 Foto" });
-    await delay(5000);
   }
 }
 
@@ -721,6 +726,8 @@ const isValidMsg = (msg: WbotMessage): boolean => {
     msg.type === "document" ||
     msg.type === "vcard" ||
     msg.type === "buttons_response" ||
+    msg.type === "list" ||
+    msg.type === "list_response" ||
     //msg.type === "multi_vcard" ||
     msg.type === "sticker" ||
     msg.type === "location"
