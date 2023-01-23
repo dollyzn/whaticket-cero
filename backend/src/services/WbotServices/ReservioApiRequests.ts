@@ -74,9 +74,10 @@ const createAppointmentBooking = async (
     }
   }
 
+  let duration = (await getServiceDuration(unity, service)) / 60;
   let hourSelected = new Date(start!);
   let dateSelected = new Date(previous!);
-  let endDate = addMinutes(hourSelected, 15);
+  let endDate = addMinutes(hourSelected, duration);
 
   let end = toIsoString(dateSelected, endDate);
   start = toIsoString(dateSelected, hourSelected);
@@ -284,6 +285,32 @@ const listServices = async (
     });
 };
 
+const getServiceDuration = async (
+  unity: string | undefined,
+  service: string | undefined
+): Promise<number> => {
+  let duration = 0;
+  const options = {
+    method: "GET",
+    url: `https://api.reservio.com/v2/businesses/${unity}/services/${service}`,
+    headers: {
+      cookie: "_nss=1",
+      Accept: "application/vnd.api+json",
+      Authorization: "Bearer accessToken"
+    }
+  };
+
+  await axios
+    .request(options)
+    .then(async function (response) {
+      duration = response.data.data.attributes.duration;
+    })
+    .catch(async function (error) {
+      duration = 900;
+    });
+  return duration;
+};
+
 const listSlotsAvailable = async (
   wbot: Session,
   ticket: Ticket,
@@ -426,7 +453,7 @@ const listSlotsAvailable = async (
       await delay(3000);
       const sentMessage2 = await wbot.sendMessage(
         `${contact.number}@c.us`,
-        `*${ticket.queue.dialogflow.name}:*Posso ajudar com algo mais?`
+        `*${ticket.queue.dialogflow.name}:* Posso ajudar com algo mais?`
       );
 
       await verifyMessage(sentMessage, ticket, contact);
