@@ -540,8 +540,8 @@ async function sendDelayedMessages(
     const service = createBooking.service?.stringValue
       ? createBooking.service?.stringValue
       : undefined;
-    const name = createBooking.name?.structValue.fields.name.stringValue
-      ? createBooking.name.structValue.fields.name.stringValue
+    const name = createBooking.name?.stringValue
+      ? createBooking.name.stringValue
       : undefined;
     const email = createBooking.email?.stringValue
       ? createBooking.email.stringValue
