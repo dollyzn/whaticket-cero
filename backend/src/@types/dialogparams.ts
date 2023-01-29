@@ -6,7 +6,7 @@ export interface Button {
 export interface Booking {
   booking: { stringValue: string };
   unity: { stringValue: string };
-  name: { structValue: { fields: { name: { stringValue: string } } } };
+  name: { stringValue: string };
   start: { stringValue: string };
   previous: { stringValue: string };
   email: { stringValue: string };
