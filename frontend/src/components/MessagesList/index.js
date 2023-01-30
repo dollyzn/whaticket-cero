@@ -30,7 +30,6 @@ import whatsBackground from "../../assets/wa-background.png";
 
 import api from "../../services/api";
 import toastError from "../../errors/toastError";
-import { toast } from "react-toastify";
 import Audio from "../Audio";
 
 const useStyles = makeStyles((theme) => ({
@@ -319,24 +318,9 @@ const reducer = (state, action) => {
     return [...state];
   }
 
-  function ToastDisplay(props) {
-    return (
-      <>
-        <h4>Mensagem apagada:</h4>
-        <p>{props.body}</p>
-      </>
-    );
-  }
-
   if (action.type === "UPDATE_MESSAGE") {
     const messageToUpdate = action.payload;
     const messageIndex = state.findIndex((m) => m.id === messageToUpdate.id);
-
-    if (messageToUpdate.isDeleted === true) {
-      toast.info(<ToastDisplay body={messageToUpdate.body}></ToastDisplay>, {
-        autoClose: false,
-      });
-    }
 
     if (messageIndex !== -1) {
       state[messageIndex] = messageToUpdate;
@@ -804,26 +788,11 @@ const MessagesList = ({ ticketId, isGroup }) => {
                   })}
                 >
                   {message.isDeleted && (
-                    <div>
-                      <span className={"message-deleted"}>
-                        Mensagem apagada pelo contato
-                        <Block
-                          color=""
-                          fontSize="small"
-                          className={classes.deletedIcon}
-                        />
-                        <Block
-                          color=""
-                          fontSize="small"
-                          className={classes.deletedIcon}
-                        />
-                        <Block
-                          color=""
-                          fontSize="small"
-                          className={classes.deletedIcon}
-                        />
-                      </span>
-                    </div>
+                    <Block
+                      color="disabled"
+                      fontSize="small"
+                      className={classes.deletedIcon}
+                    />
                   )}
                   {message.quotedMsg && renderQuotedMessage(message)}
                   <MarkdownWrapper>{message.body}</MarkdownWrapper>
