@@ -30,10 +30,10 @@ import whatsBackground from "../../assets/wa-background.png";
 
 import api from "../../services/api";
 import toastError from "../../errors/toastError";
+import { toast } from "react-toastify";
 import Audio from "../Audio";
 
 const useStyles = makeStyles((theme) => ({
-
   ticketNunber: {
     color: "#808888",
     padding: 8,
@@ -319,9 +319,24 @@ const reducer = (state, action) => {
     return [...state];
   }
 
+  function ToastDisplay(props) {
+    return (
+      <>
+        <h4>Mensagem apagada:</h4>
+        <p>{props.body}</p>
+      </>
+    );
+  }
+
   if (action.type === "UPDATE_MESSAGE") {
     const messageToUpdate = action.payload;
     const messageIndex = state.findIndex((m) => m.id === messageToUpdate.id);
+
+    if (messageToUpdate.isDeleted === true) {
+      toast.info(<ToastDisplay body={messageToUpdate.body}></ToastDisplay>, {
+        autoClose: false,
+      });
+    }
 
     if (messageIndex !== -1) {
       state[messageIndex] = messageToUpdate;
@@ -444,21 +459,27 @@ const MessagesList = ({ ticketId, isGroup }) => {
   };
 
   const checkMessageMedia = (message) => {
-    if (message.mediaType === "location" && message.body.split('|').length >= 2) {
-      let locationParts = message.body.split('|')
-      let imageLocation = locationParts[0]
-      let linkLocation = locationParts[1]
+    if (
+      message.mediaType === "location" &&
+      message.body.split("|").length >= 2
+    ) {
+      let locationParts = message.body.split("|");
+      let imageLocation = locationParts[0];
+      let linkLocation = locationParts[1];
 
-      let descriptionLocation = null
+      let descriptionLocation = null;
 
       if (locationParts.length > 2)
-        descriptionLocation = message.body.split('|')[2]
+        descriptionLocation = message.body.split("|")[2];
 
-      return <LocationPreview image={imageLocation} link={linkLocation} description={descriptionLocation} />
-    }
-    else if (message.mediaType === "vcard") {
-      //console.log("vcard")
-      //console.log(message)
+      return (
+        <LocationPreview
+          image={imageLocation}
+          link={linkLocation}
+          description={descriptionLocation}
+        />
+      );
+    } else if (message.mediaType === "vcard") {
       let array = message.body.split("\n");
       let obj = [];
       let contact = "";
@@ -474,9 +495,9 @@ const MessagesList = ({ ticketId, isGroup }) => {
           }
         }
       }
-      return <VcardPreview contact={contact} numbers={obj[0]?.number} />
-    }
-    /*else if (message.mediaType === "multi_vcard") {
+      return <VcardPreview contact={contact} numbers={obj[0]?.number} />;
+    } else if (message.mediaType === "image") {
+      /*else if (message.mediaType === "multi_vcard") {
       console.log("multi_vcard")
       console.log(message)
     	
@@ -493,10 +514,9 @@ const MessagesList = ({ ticketId, isGroup }) => {
         )
       } else return (<></>)
     }*/
-    else if (message.mediaType === "image") {
       return <ModalImageCors imageUrl={message.mediaUrl} />;
     } else if (message.mediaType === "audio") {
-      return <Audio url={message.mediaUrl} />
+      return <Audio url={message.mediaUrl} />;
     } else if (message.mediaType === "video") {
       return (
         <video
@@ -526,16 +546,16 @@ const MessagesList = ({ ticketId, isGroup }) => {
   };
 
   const renderMessageAck = (message) => {
-    if (message.ack === 0) {
+    if (message.ack === 1) {
       return <AccessTime fontSize="small" className={classes.ackIcons} />;
     }
-    if (message.ack === 1) {
+    if (message.ack === 2) {
       return <Done fontSize="small" className={classes.ackIcons} />;
     }
-    if (message.ack === 2) {
+    if (message.ack === 3) {
       return <DoneAll fontSize="small" className={classes.ackIcons} />;
     }
-    if (message.ack === 3 || message.ack === 4) {
+    if (message.ack === 4 || message.ack === 5) {
       return <DoneAll fontSize="small" className={classes.ackDoneAllIcon} />;
     }
   };
@@ -581,7 +601,7 @@ const MessagesList = ({ ticketId, isGroup }) => {
     }
   };
 
-    const renderNumberTicket = (message, index) => {
+  const renderNumberTicket = (message, index) => {
     if (index < messagesList.length && index > 0) {
       let messageTicket = message.ticketId;
       let previousMessageTicket = messagesList[index - 1].ticketId;
@@ -628,7 +648,45 @@ const MessagesList = ({ ticketId, isGroup }) => {
               {message.quotedMsg?.contact?.name}
             </span>
           )}
-          {message.quotedMsg?.body}
+          {message.quotedMsg.mediaType === "audio" && (
+            <div className={classes.downloadMedia}>
+              <audio controls>
+                <source
+                  src={message.quotedMsg.mediaUrl}
+                  type="audio/ogg"
+                ></source>
+              </audio>
+            </div>
+          )}
+          {message.quotedMsg.mediaType === "video" && (
+            <video
+              className={classes.messageMedia}
+              src={message.quotedMsg.mediaUrl}
+              controls
+            />
+          )}
+          {message.quotedMsg.mediaType === "application" && (
+            <div className={classes.downloadMedia}>
+              <Button
+                startIcon={<GetApp />}
+                color="primary"
+                variant="outlined"
+                target="_blank"
+                href={message.quotedMsg.mediaUrl}
+              >
+                Download
+              </Button>
+            </div>
+          )}
+
+          {message.quotedMsg.mediaType === "image" ? (
+            <div>
+              <ModalImageCors imageUrl={message.quotedMsg.mediaUrl} />
+              <span>{message.quotedMsg?.body}</span>
+            </div>
+          ) : (
+            message.quotedMsg.body
+          )}
         </div>
       </div>
     );
@@ -637,7 +695,6 @@ const MessagesList = ({ ticketId, isGroup }) => {
   const renderMessages = () => {
     if (messagesList.length > 0) {
       const viewMessagesList = messagesList.map((message, index) => {
-
         if (message.mediaType === "call_log") {
           return (
             <React.Fragment key={message.id}>
@@ -661,9 +718,21 @@ const MessagesList = ({ ticketId, isGroup }) => {
                   </span>
                 )}
                 <div>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 17" width="20" height="17">
-                                <path fill="#df3333" d="M18.2 12.1c-1.5-1.8-5-2.7-8.2-2.7s-6.7 1-8.2 2.7c-.7.8-.3 2.3.2 2.8.2.2.3.3.5.3 1.4 0 3.6-.7 3.6-.7.5-.2.8-.5.8-1v-1.3c.7-1.2 5.4-1.2 6.4-.1l.1.1v1.3c0 .2.1.4.2.6.1.2.3.3.5.4 0 0 2.2.7 3.6.7.2 0 1.4-2 .5-3.1zM5.4 3.2l4.7 4.6 5.8-5.7-.9-.8L10.1 6 6.4 2.3h2.5V1H4.1v4.8h1.3V3.2z"></path>
-                            </svg> <span>Chamada de voz/vídeo perdida às {format(parseISO(message.createdAt), "HH:mm")}</span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 17"
+                    width="20"
+                    height="17"
+                  >
+                    <path
+                      fill="#df3333"
+                      d="M18.2 12.1c-1.5-1.8-5-2.7-8.2-2.7s-6.7 1-8.2 2.7c-.7.8-.3 2.3.2 2.8.2.2.3.3.5.3 1.4 0 3.6-.7 3.6-.7.5-.2.8-.5.8-1v-1.3c.7-1.2 5.4-1.2 6.4-.1l.1.1v1.3c0 .2.1.4.2.6.1.2.3.3.5.4 0 0 2.2.7 3.6.7.2 0 1.4-2 .5-3.1zM5.4 3.2l4.7 4.6 5.8-5.7-.9-.8L10.1 6 6.4 2.3h2.5V1H4.1v4.8h1.3V3.2z"
+                    ></path>
+                  </svg>{" "}
+                  <span>
+                    Chamada de voz/vídeo perdida às{" "}
+                    {format(parseISO(message.createdAt), "HH:mm")}
+                  </span>
                 </div>
               </div>
             </React.Fragment>
@@ -692,9 +761,11 @@ const MessagesList = ({ ticketId, isGroup }) => {
                     {message.contact?.name}
                   </span>
                 )}
-                {(message.mediaUrl || message.mediaType === "location" || message.mediaType === "vcard"
-                  //|| message.mediaType === "multi_vcard" 
-                ) && checkMessageMedia(message)}
+                {(message.mediaUrl ||
+                  message.mediaType === "location" ||
+                  message.mediaType === "vcard") &&
+                  //|| message.mediaType === "multi_vcard"
+                  checkMessageMedia(message)}
                 <div className={classes.textContentItem}>
                   {message.quotedMsg && renderQuotedMessage(message)}
                   <MarkdownWrapper>{message.body}</MarkdownWrapper>
@@ -722,20 +793,37 @@ const MessagesList = ({ ticketId, isGroup }) => {
                 >
                   <ExpandMore />
                 </IconButton>
-                {(message.mediaUrl || message.mediaType === "location" || message.mediaType === "vcard"
-                  //|| message.mediaType === "multi_vcard" 
-                ) && checkMessageMedia(message)}
+                {(message.mediaUrl ||
+                  message.mediaType === "location" ||
+                  message.mediaType === "vcard") &&
+                  //|| message.mediaType === "multi_vcard"
+                  checkMessageMedia(message)}
                 <div
                   className={clsx(classes.textContentItem, {
                     [classes.textContentItemDeleted]: message.isDeleted,
                   })}
                 >
                   {message.isDeleted && (
-                    <Block
-                      color="disabled"
-                      fontSize="small"
-                      className={classes.deletedIcon}
-                    />
+                    <div>
+                      <span className={"message-deleted"}>
+                        Mensagem apagada pelo contato
+                        <Block
+                          color=""
+                          fontSize="small"
+                          className={classes.deletedIcon}
+                        />
+                        <Block
+                          color=""
+                          fontSize="small"
+                          className={classes.deletedIcon}
+                        />
+                        <Block
+                          color=""
+                          fontSize="small"
+                          className={classes.deletedIcon}
+                        />
+                      </span>
+                    </div>
                   )}
                   {message.quotedMsg && renderQuotedMessage(message)}
                   <MarkdownWrapper>{message.body}</MarkdownWrapper>
