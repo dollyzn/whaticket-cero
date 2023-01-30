@@ -131,7 +131,7 @@ export const update = async (
       const nome = await ShowUserService(ticketData.userId);
       const msgtxt =
         "_Você foi transferido(a) para a fila *" +
-        name.replace(/Fila 1 /gi, "").replace(/Fila 2 /gi, "") +
+        name.replace(/Fila [0-9] /gi, "") +
         "*._";
       const msgtxt2 =
         "_Por favor aguarde, *" +
@@ -144,7 +144,7 @@ export const update = async (
       const { name } = await ShowQueueService(ticketData.queueId);
       const msgtxt =
         "_Você foi transferido(a) para a fila *" +
-        name.replace(/Fila 1 /gi, "").replace(/Fila 2 /gi, "") +
+        name.replace(/Fila [0-9] /gi, "") +
         "*._";
       await SendWhatsAppMessage({ body: msgtxt, ticket });
     }
