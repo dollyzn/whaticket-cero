@@ -523,6 +523,9 @@ async function sendDelayedMessages(
   createBooking: Booking | undefined,
   sendListMessage: Lists | undefined
 ) {
+  const whatsapp = await ShowWhatsAppService(wbot.id!);
+  const farewellMessage = whatsapp.farewellMessage.replace(/[_*]/g, "");
+
   function delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
@@ -666,15 +669,8 @@ async function sendDelayedMessages(
     await delay(5000);
   }
 
-  if (message === "Atendimento finalizado.") {
+  if (message.includes(farewellMessage)) {
     await delay(10000);
-
-    const sentMessage = await wbot.sendMessage(
-      `${contact.number}@c.us`,
-      `*${ticket.queue.dialogflow.name}:* ` + message
-    );
-
-    await verifyMessage(sentMessage, ticket, contact);
     setTimeout(async () => {
       await ToggleUseDialogflowService({
         contactId: ticket.contact.id.toString(),

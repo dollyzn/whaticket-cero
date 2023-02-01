@@ -95,46 +95,58 @@ export const update = async (
 
   const ticketData: TicketData = req.body;
 
-  // Obter o antigo atendente
   const ticketShow = await ShowTicketService(ticketId);
 
-  // Atualiza o ticket para os parametros novos (usuario, fila...)
   const { ticket } = await UpdateTicketService({ ticketData, ticketId });
 
   function delay(ms: number) {
-    return new Promise( resolve => setTimeout(resolve, ms) );
-}
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
 
-    const settingsTransfTicket = await ListSettingsServiceOne({key:"transferTicket"});
-    const transfTickets = (JSON.stringify("enabled"));
+  const settingsTransfTicket = await ListSettingsServiceOne({
+    key: "transferTicket"
+  });
+  const transfTickets = JSON.stringify("enabled");
 
-    if ((JSON.stringify(settingsTransfTicket?.value)) === transfTickets && ticketData.transf) {
-    console.log("Fila: " + ticketShow.queueId);
-    if (ticketShow.userId !== ticketData.userId && ticketShow.queueId === ticketData.queueId || ticketData.queueId === undefined) {
-      // const nomeAntigo = await ShowUserService(ticketShow.userId);
+  if (
+    JSON.stringify(settingsTransfTicket?.value) === transfTickets &&
+    ticketData.transf
+  ) {
+    if (
+      (ticketShow.userId !== ticketData.userId &&
+        ticketShow.queueId === ticketData.queueId) ||
+      ticketData.queueId === undefined
+    ) {
       const nome = await ShowUserService(ticketData.userId);
-      const msgtxt = "*Cero:* Você foi transferido(a) para outro atendente!!";
-      const msgtxt2 = "*Cero:* Aguarde um momento pois *" + nome.name + "* irá te atender no mais rápido possível!";
+      const msgtxt = "_Você foi transferido(a) para outro atendente_";
+      const msgtxt2 =
+        "_Por favor aguarde, *" +
+        nome.name +
+        "* irá te atender assim que possível_";
       await SendWhatsAppMessage({ body: msgtxt, ticket });
-      await delay(100);
+      await delay(1000);
       await SendWhatsAppMessage({ body: msgtxt2, ticket });
-    } else
-    if (ticketData.userId) {
+    } else if (ticketData.userId) {
       const { name } = await ShowQueueService(ticketData.queueId);
       const nome = await ShowUserService(ticketData.userId);
-      const msgtxt = "*Cero:* Você foi transferido(a) para a fila *" + name + "*.";
-      const msgtxt2 = "*Cero:* Aguarde um momento pois *" + nome.name + "* irá te atender no mais rápido possível!";
+      const msgtxt =
+        "_Você foi transferido(a) para a fila *" +
+        name.replace(/Fila [0-9] /gi, "") +
+        "*._";
+      const msgtxt2 =
+        "_Por favor aguarde, *" +
+        nome.name +
+        "* irá te atender assim que possível_";
       await SendWhatsAppMessage({ body: msgtxt, ticket });
-      await delay(100);
+      await delay(1000);
       await SendWhatsAppMessage({ body: msgtxt2, ticket });
-    }
-    else {
+    } else {
       const { name } = await ShowQueueService(ticketData.queueId);
-      const msgtxt = "*Cero:* Você foi transferido(a) para a fila *" + name + "*.";
-      const msgtxt2 = "*Cero:* Aguarde um momento, iremos te atender no mais rápido possível!"
+      const msgtxt =
+        "_Você foi transferido(a) para a fila *" +
+        name.replace(/Fila [0-9] /gi, "") +
+        "*._";
       await SendWhatsAppMessage({ body: msgtxt, ticket });
-      await delay(100);
-      await SendWhatsAppMessage({ body: msgtxt2, ticket });
     }
   }
 
@@ -163,13 +175,10 @@ export const remove = async (
   const ticket = await DeleteTicketService(ticketId);
 
   const io = getIO();
-  io.to(ticket.status)
-    .to(ticketId)
-    .to("notification")
-    .emit("ticket", {
-      action: "delete",
-      ticketId: +ticketId
-    });
+  io.to(ticket.status).to(ticketId).to("notification").emit("ticket", {
+    action: "delete",
+    ticketId: +ticketId
+  });
 
   return res.status(200).json({ message: "ticket deleted" });
 };
