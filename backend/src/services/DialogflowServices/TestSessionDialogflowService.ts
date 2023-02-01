@@ -41,9 +41,10 @@ const TestDialogflowSession = async ({
   let dialogFlowReply = await queryDialogFlow(
     session,
     projectName,
-    "TestSeesion",
+    "TestSession",
     "Ola",
-    language
+    language,
+    undefined
   );
 
   await session.close();
