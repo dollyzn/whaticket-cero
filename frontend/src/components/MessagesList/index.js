@@ -794,6 +794,7 @@ const MessagesList = ({ ticketId, isGroup }) => {
                         fontSize="small"
                         className={classes.deletedIcon}
                       />
+                      <span>Mensagem Apagada</span>
                     </div>
                   )}
                   {message.quotedMsg && renderQuotedMessage(message)}
