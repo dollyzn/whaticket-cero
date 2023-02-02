@@ -546,16 +546,16 @@ const MessagesList = ({ ticketId, isGroup }) => {
   };
 
   const renderMessageAck = (message) => {
-    if (message.ack === 1) {
+    if (message.ack === 0) {
       return <AccessTime fontSize="small" className={classes.ackIcons} />;
     }
-    if (message.ack === 2) {
+    if (message.ack === 1) {
       return <Done fontSize="small" className={classes.ackIcons} />;
     }
-    if (message.ack === 3) {
+    if (message.ack === 2) {
       return <DoneAll fontSize="small" className={classes.ackIcons} />;
     }
-    if (message.ack === 4 || message.ack === 5) {
+    if (message.ack === 3 || message.ack === 4) {
       return <DoneAll fontSize="small" className={classes.ackDoneAllIcon} />;
     }
   };

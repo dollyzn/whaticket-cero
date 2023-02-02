@@ -1,6 +1,6 @@
 import { join } from "path";
 import { promisify } from "util";
-import { writeFile } from "fs";
+import { readFile, writeFile } from "fs";
 import { Op } from "sequelize";
 import * as Sentry from "@sentry/node";
 
@@ -93,7 +93,7 @@ const verifyMediaMessage = async (
 
   if (!media.filename) {
     const ext = media.mimetype.split("/")[1].split(";")[0];
-    media.filename = `${new Date().getTime()}.${ext}`;
+    media.filename = `${msg.timestamp}.${ext}`;
   }
 
   try {
@@ -428,7 +428,8 @@ const sendDialogflowAwswer = async (
   ticket: Ticket,
   msg: WbotMessage,
   contact: Contact,
-  chat: Chat
+  chat: Chat,
+  inputAudio: string | undefined
 ) => {
   const session = await createDialogflowSessionWithModel(
     ticket.queue.dialogflow
@@ -455,9 +456,18 @@ const sendDialogflowAwswer = async (
     ticket.queue.dialogflow.projectName,
     msg.from,
     msg.body,
-    ticket.queue.dialogflow.language
+    ticket.queue.dialogflow.language,
+    inputAudio
   );
-  if (dialogFlowReply.responses === null) {
+
+  if (!dialogFlowReply) {
+    const sentMessage = await wbot.sendMessage(
+      `${contact.number}@c.us`,
+      `*${ticket.queue.dialogflow.name}:* 🤔 Não consegui entender`
+    );
+
+    await verifyMessage(sentMessage, ticket, contact);
+    await delay(5000);
     return;
   }
 
@@ -826,9 +836,34 @@ const handleMessage = async (
       ticket.queue.dialogflow &&
       contact.useDialogflow
     ) {
+      let inputAudio: string | undefined;
+
+      if (msg.type === "ptt") {
+        let filename = `${msg.timestamp}.ogg`;
+        readFile(
+          join(__dirname, "..", "..", "..", "public", filename),
+          "base64",
+          (err, data) => {
+            inputAudio = data;
+            if (err) {
+              logger.error(err);
+            }
+          }
+        );
+      } else {
+        inputAudio = undefined;
+      }
+
       const debouncedSentMessage = debounce(
         async () => {
-          await sendDialogflowAwswer(wbot, ticket, msg, contact, chat);
+          await sendDialogflowAwswer(
+            wbot,
+            ticket,
+            msg,
+            contact,
+            chat,
+            inputAudio
+          );
         },
         8000,
         ticket.id
