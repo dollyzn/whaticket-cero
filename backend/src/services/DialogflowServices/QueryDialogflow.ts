@@ -84,6 +84,7 @@ async function queryDialogFlow(
         intentResponse?.queryResult?.diagnosticInfo?.fields?.end_conversation
           ?.boolValue;
       const parameters = intentResponse?.queryResult?.parameters?.fields;
+      const encodedAudio = intentResponse?.outputAudio;
 
       if (responses?.length === 0) {
         return null;
@@ -91,7 +92,8 @@ async function queryDialogFlow(
         return {
           responses,
           endConversation,
-          parameters
+          parameters,
+          encodedAudio
         };
       }
     } catch (error) {
@@ -115,6 +117,7 @@ async function queryDialogFlow(
         intentResponse?.queryResult?.diagnosticInfo?.fields?.end_conversation
           ?.boolValue;
       const parameters = intentResponse?.queryResult?.parameters?.fields;
+      const encodedAudio = intentResponse?.outputAudio;
 
       if (responses?.length === 0) {
         return null;
@@ -122,7 +125,8 @@ async function queryDialogFlow(
         return {
           responses,
           endConversation,
-          parameters
+          parameters,
+          encodedAudio
         };
       }
     } catch (error) {

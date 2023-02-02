@@ -496,6 +496,10 @@ const sendDialogflowAwswer = async (
     ? dialogFlowReply.parameters
     : undefined;
 
+  const audio = dialogFlowReply.encodedAudio
+    ? dialogFlowReply.encodedAudio
+    : undefined;
+
   chat.sendStateTyping();
 
   function delay(ms: number) {
@@ -517,7 +521,8 @@ const sendDialogflowAwswer = async (
       image,
       button,
       booking,
-      list
+      list,
+      audio
     );
   }
 };
@@ -531,7 +536,8 @@ async function sendDelayedMessages(
   sendImage: string | undefined,
   sendButtonMessage: Button | undefined,
   createBooking: Booking | undefined,
-  sendListMessage: Lists | undefined
+  sendListMessage: Lists | undefined,
+  audio: Buffer
 ) {
   const whatsapp = await ShowWhatsAppService(wbot.id!);
   const farewellMessage = whatsapp.farewellMessage.replace(/[_*]/g, "");
@@ -656,6 +662,21 @@ async function sendDelayedMessages(
     const sentMessage = await wbot.sendMessage(
       `${contact.number}@c.us`,
       `*${ticket.queue.dialogflow.name}:* ` + message
+    );
+
+    await verifyMessage(sentMessage, ticket, contact);
+    await delay(5000);
+  }
+
+  if (audio && message === lastMessage) {
+    const newMedia = new MessageMedia("audio/ogg", audio.toString("base64"));
+
+    const sentMessage = await wbot.sendMessage(
+      `${contact.number}@c.us`,
+      newMedia,
+      {
+        sendAudioAsVoice: true
+      }
     );
 
     await verifyMessage(sentMessage, ticket, contact);
