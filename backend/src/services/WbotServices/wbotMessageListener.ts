@@ -496,9 +496,8 @@ const sendDialogflowAwswer = async (
     ? dialogFlowReply.parameters
     : undefined;
 
-  const audio = dialogFlowReply.encodedAudio
-    ? dialogFlowReply.encodedAudio
-    : undefined;
+  let base64EncodedAudio = dialogFlowReply.encodedAudio.toString("base64");
+  const audio = base64EncodedAudio ? base64EncodedAudio : undefined;
 
   chat.sendStateTyping();
 
@@ -537,7 +536,7 @@ async function sendDelayedMessages(
   sendButtonMessage: Button | undefined,
   createBooking: Booking | undefined,
   sendListMessage: Lists | undefined,
-  audio: Buffer
+  audio: string | undefined
 ) {
   const whatsapp = await ShowWhatsAppService(wbot.id!);
   const farewellMessage = whatsapp.farewellMessage.replace(/[_*]/g, "");
@@ -669,7 +668,7 @@ async function sendDelayedMessages(
   }
 
   if (audio && message === lastMessage) {
-    const newMedia = new MessageMedia("audio/ogg", audio.toString("base64"));
+    const newMedia = new MessageMedia("audio/ogg", audio);
 
     const sentMessage = await wbot.sendMessage(
       `${contact.number}@c.us`,
