@@ -699,7 +699,7 @@ async function sendDelayedMessages(
     await delay(5000);
   }
 
-  if (message.includes(farewellMessage)) {
+  if (farewellMessage && message.includes(farewellMessage)) {
     await delay(10000);
     setTimeout(async () => {
       await ToggleUseDialogflowService({
