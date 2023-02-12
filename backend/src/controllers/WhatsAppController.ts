@@ -9,6 +9,8 @@ import ListWhatsAppsService from "../services/WhatsappService/ListWhatsAppsServi
 import ShowWhatsAppService from "../services/WhatsappService/ShowWhatsAppService";
 import UpdateWhatsAppService from "../services/WhatsappService/UpdateWhatsAppService";
 
+import AppError from "../errors/AppError";
+
 interface WhatsappData {
   name: string;
   queueIds: number[];
@@ -116,6 +118,10 @@ export const remove = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
+  if (req.user.profile !== "admin") {
+    throw new AppError("ERR_NO_PERMISSION", 403);
+  }
+
   const { whatsappId } = req.params;
 
   await DeleteWhatsAppService(whatsappId);
