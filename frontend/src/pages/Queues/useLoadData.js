@@ -3,20 +3,20 @@ import toastError from "../../errors/toastError";
 import api from "../../services/api";
 
 const useLoadData = (setLoading, dispatch, route, dispatchType) => {
-    useEffect(() => {
-        (async () => {
-            setLoading(true);
-            try {
-                const { data } = await api.get(route);
-                dispatch({ type: dispatchType, payload: data });
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      try {
+        const { data } = await api.get(route);
+        dispatch({ type: dispatchType, payload: data });
 
-                setLoading(false);
-            } catch (err) {
-                toastError(err);
-                setLoading(false);
-            }
-        })();
-    }, []);
-}
+        setLoading(false);
+      } catch (err) {
+        toastError(err);
+        setLoading(false);
+      }
+    })();
+  }, [setLoading, dispatch, route, dispatchType]);
+};
 
 export default useLoadData;

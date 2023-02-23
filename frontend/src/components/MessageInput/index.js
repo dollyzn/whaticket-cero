@@ -219,17 +219,11 @@ const MessageInput = ({ ticketStatus }) => {
     useContext(ReplyMessageContext);
   const { user } = useContext(AuthContext);
 
-  const [signMessage, setSignMessage] = useLocalStorage("signOption", true); 
+  const [signMessage, setSignMessage] = useLocalStorage("signOption", true);
 
   useEffect(() => {
     inputRef.current.focus();
   }, [replyingMessage]);
-
-  useEffect(() => {
-    if (user.profile.toUpperCase() === "ADMIN") {
-      setSignMessage(true);
-    }
-  }, [])
 
   useEffect(() => {
     inputRef.current.focus();
@@ -498,26 +492,26 @@ const MessageInput = ({ ticketStatus }) => {
               </IconButton>
             </label>
             <Can
-            role={user.profile}
-            perform="sign-message:disable"
-            yes={() => (
-            <FormControlLabel
-              style={{ marginRight: 7, color: "gray" }}
-              label={i18n.t("messagesInput.signMessage")}
-              labelPlacement="start"
-              control={
-                <Switch
-                  size="small"
-                  checked={signMessage}
-                  onChange={(e) => {
-                    setSignMessage(e.target.checked);
-                  }}
-                  name="showAllTickets"
-                  color="primary"
+              role={user.profile}
+              perform="sign-message:disable"
+              yes={() => (
+                <FormControlLabel
+                  style={{ marginRight: 7, color: "gray" }}
+                  label={i18n.t("messagesInput.signMessage")}
+                  labelPlacement="start"
+                  control={
+                    <Switch
+                      size="small"
+                      checked={signMessage}
+                      onChange={(e) => {
+                        setSignMessage(e.target.checked);
+                      }}
+                      name="showAllTickets"
+                      color="primary"
+                    />
+                  }
                 />
-              }
-            />
-            )}
+              )}
             />
           </Hidden>
           <Hidden only={["md", "lg", "xl"]}>
@@ -565,28 +559,28 @@ const MessageInput = ({ ticketStatus }) => {
                 </label>
               </MenuItem>
               <MenuItem onClick={handleMenuItemClick}>
-              <Can
-               role={user.profile}
-               perform="sign-message:disable"
-               yes={() => (
-                <FormControlLabel
-                  style={{ marginRight: 7, color: "gray" }}
-                  label={i18n.t("messagesInput.signMessage")}
-                  labelPlacement="start"
-                  control={
-                    <Switch
-                      size="small"
-                      checked={signMessage}
-                      onChange={(e) => {
-                        setSignMessage(e.target.checked);
-                      }}
-                      name="showAllTickets"
-                      color="primary"
+                <Can
+                  role={user.profile}
+                  perform="sign-message:disable"
+                  yes={() => (
+                    <FormControlLabel
+                      style={{ marginRight: 7, color: "gray" }}
+                      label={i18n.t("messagesInput.signMessage")}
+                      labelPlacement="start"
+                      control={
+                        <Switch
+                          size="small"
+                          checked={signMessage}
+                          onChange={(e) => {
+                            setSignMessage(e.target.checked);
+                          }}
+                          name="showAllTickets"
+                          color="primary"
+                        />
+                      }
                     />
-                  }
+                  )}
                 />
-               )}
-               />
               </MenuItem>
             </Menu>
           </Hidden>

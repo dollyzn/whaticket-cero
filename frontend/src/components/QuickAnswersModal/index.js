@@ -179,7 +179,8 @@ const QuickAnswersModal = ({
                     margin="dense"
                     className={classes.textField}
                     multiline
-                    rows={5}
+                    minRows={5}
+                    maxRows={5}
                     fullWidth
                   />
                 </div>
