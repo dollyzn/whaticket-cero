@@ -36,6 +36,20 @@ const useStyles = makeStyles((theme) => ({
     },
   },
 
+  multTimeFieldLine: {
+    display: "flex",
+    gap: "10px",
+    alignItems: "center",
+    [theme.breakpoints.down("sm")]: {
+      margin: 0,
+      flexDirection: "column",
+      alignItems: "flex-start",
+      "& > *": {
+        marginBottom: "-2px",
+      },
+    },
+  },
+
   btnWrapper: {
     position: "relative",
   },
@@ -240,7 +254,7 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                     margin="dense"
                   />
                 </div>
-                <div className={classes.multFieldLine}>
+                <div className={classes.multTimeFieldLine}>
                   <Field
                     as={TextField}
                     label={i18n.t("whatsappModal.form.openingHours")}
