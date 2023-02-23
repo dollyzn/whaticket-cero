@@ -496,6 +496,10 @@ const sendDialogflowAwswer = async (
     ? dialogFlowReply.parameters
     : undefined;
 
+  const react = dialogFlowReply.parameters.react?.stringValue
+    ? dialogFlowReply.parameters.react.stringValue
+    : undefined;
+
   let base64EncodedAudio = dialogFlowReply.encodedAudio.toString("base64");
   const audio = base64EncodedAudio ? base64EncodedAudio : undefined;
 
@@ -515,13 +519,15 @@ const sendDialogflowAwswer = async (
       wbot,
       ticket,
       contact,
+      msg,
       message.text.text[0],
       lastMessage,
       image,
       button,
       booking,
       list,
-      audio
+      audio,
+      react
     );
   }
 };
@@ -530,19 +536,32 @@ async function sendDelayedMessages(
   wbot: Session,
   ticket: Ticket,
   contact: Contact,
+  msg: WbotMessage,
   message: string,
   lastMessage: string,
   sendImage: string | undefined,
   sendButtonMessage: Button | undefined,
   createBooking: Booking | undefined,
   sendListMessage: Lists | undefined,
-  audio: string | undefined
+  audio: string | undefined,
+  react: string | undefined
 ) {
   const whatsapp = await ShowWhatsAppService(wbot.id!);
   const farewellMessage = whatsapp.farewellMessage.replace(/[_*]/g, "");
 
   function delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  if (react) {
+    const test =
+      /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/g.test(
+        react
+      );
+    if (test) {
+      msg.react(react);
+      await delay(2000);
+    }
   }
 
   if (createBooking?.email.stringValue) {
