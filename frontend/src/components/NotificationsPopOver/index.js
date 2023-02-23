@@ -126,11 +126,21 @@ const NotificationsPopOver = () => {
           return [data.ticket, ...prevState];
         });
 
+        let userQueueInTicket = false;
+
+        for (let i = 0; i < user?.queues.length; i++) {
+          if (user?.queues[i].id === data.ticket.queueId) {
+            userQueueInTicket = true;
+            break;
+          }
+        }
+
         const shouldNotNotificate =
           (data.message.ticketId === ticketIdRef.current &&
             document.visibilityState === "visible") ||
           (data.ticket.userId && data.ticket.userId !== user?.id) ||
-          data.ticket.isGroup;
+          data.ticket.isGroup ||
+          !userQueueInTicket;
 
         if (shouldNotNotificate) return;
 
