@@ -423,6 +423,10 @@ const verifyQueue = async (
   }
 };
 
+function delay(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 const sendDialogflowAwswer = async (
   wbot: Session,
   ticket: Ticket,
@@ -461,13 +465,14 @@ const sendDialogflowAwswer = async (
   );
 
   if (!dialogFlowReply) {
+    chat.sendStateTyping();
+    await delay(3000);
     const sentMessage = await wbot.sendMessage(
       `${contact.number}@c.us`,
       `*${ticket.queue.dialogflow.name}:* 🤔 Não consegui entender`
     );
 
     await verifyMessage(sentMessage, ticket, contact);
-    await delay(5000);
     return;
   }
 
@@ -504,13 +509,10 @@ const sendDialogflowAwswer = async (
   const audio = base64EncodedAudio ? base64EncodedAudio : undefined;
 
   chat.sendStateTyping();
-
-  function delay(ms: number) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-
   await delay(3000);
+
   let lastMessage;
+
   for (let message of dialogFlowReply.responses) {
     lastMessage = message.text.text[0];
   }
@@ -520,6 +522,7 @@ const sendDialogflowAwswer = async (
       ticket,
       contact,
       msg,
+      chat,
       message.text.text[0],
       lastMessage,
       image,
@@ -537,6 +540,7 @@ async function sendDelayedMessages(
   ticket: Ticket,
   contact: Contact,
   msg: WbotMessage,
+  chat: Chat,
   message: string,
   lastMessage: string,
   sendImage: string | undefined,
@@ -548,10 +552,6 @@ async function sendDelayedMessages(
 ) {
   const whatsapp = await ShowWhatsAppService(wbot.id!);
   const farewellMessage = whatsapp.farewellMessage.replace(/[_*]/g, "");
-
-  function delay(ms: number) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
 
   if (react) {
     const test =
@@ -595,16 +595,25 @@ async function sendDelayedMessages(
       setUseDialogFlow: { useDialogflow: false }
     });
     if (booking === "service") {
-      await listServices(wbot, ticket, contact, unity);
+      await listServices(wbot, ticket, contact, chat, unity);
     }
     if (booking === "timeSlot") {
-      await listSlotsAvailable(wbot, ticket, contact, unity, service, date);
+      await listSlotsAvailable(
+        wbot,
+        ticket,
+        contact,
+        chat,
+        unity,
+        service,
+        date
+      );
     }
     if (booking === "createBooking") {
       await createAppointmentBooking(
         wbot,
         ticket,
         contact,
+        chat,
         unity,
         service,
         name,
@@ -643,7 +652,11 @@ async function sendDelayedMessages(
     );
 
     await verifyMessage(sentMessage, ticket, contact);
-    await delay(5000);
+    if (audio) {
+      await delay(500);
+      chat.sendStateRecording();
+      await delay(5000);
+    }
   } else if (sendListMessage && message === lastMessage) {
     let options;
 
@@ -675,7 +688,11 @@ async function sendDelayedMessages(
     const sentMessage = await wbot.sendMessage(`${contact.number}@c.us`, list);
 
     await verifyMessage(sentMessage, ticket, contact);
-    await delay(5000);
+    if (audio) {
+      await delay(500);
+      chat.sendStateRecording();
+      await delay(5000);
+    }
   } else {
     const sentMessage = await wbot.sendMessage(
       `${contact.number}@c.us`,
@@ -683,6 +700,13 @@ async function sendDelayedMessages(
     );
 
     await verifyMessage(sentMessage, ticket, contact);
+    if (message != lastMessage) {
+      await delay(500);
+      chat.sendStateTyping();
+    } else if (audio) {
+      await delay(500);
+      chat.sendStateRecording();
+    }
     await delay(5000);
   }
 
@@ -698,7 +722,6 @@ async function sendDelayedMessages(
     );
 
     await verifyMessage(sentMessage, ticket, contact);
-    await delay(5000);
   }
 
   if (sendImage && message === lastMessage) {
@@ -715,7 +738,6 @@ async function sendDelayedMessages(
 
     await verifyMessage(sentMessage, ticket, contact);
     await ticket.update({ lastMessage: "📷 Foto" });
-    await delay(5000);
   }
 
   if (farewellMessage && message.includes(farewellMessage)) {

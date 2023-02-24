@@ -1,4 +1,4 @@
-import { Client, List } from "whatsapp-web.js";
+import { Chat, Client, List } from "whatsapp-web.js";
 
 import Contact from "../../models/Contact";
 import Ticket from "../../models/Ticket";
@@ -20,6 +20,7 @@ const createAppointmentBooking = async (
   wbot: Session,
   ticket: Ticket,
   contact: Contact,
+  chat: Chat,
   unity: string | undefined,
   service: string | undefined,
   name: string | undefined,
@@ -171,12 +172,14 @@ const createAppointmentBooking = async (
 
       let formatedNum = maskContactNumber(contact.number);
       formatedNum = `+${formatedNum}`;
-
+      chat.sendStateTyping();
       await delay(5000);
       const sentMessage = await wbot.sendMessage(
         `${contact.number}@c.us`,
         `Agendamento concluído com sucesso!\n\n*Nome:* ${name}\n*Número:* ${formatedNum}\n*E-mail:* ${email}\n*Em:* ${unityName}\n*Data:* ${dy}/${mon}/${year}\n*Hora:* ${hour}:${min}`
       );
+      await delay(500);
+      chat.sendStateTyping();
       await delay(3000);
       const sentMessage2 = await wbot.sendMessage(
         `${contact.number}@c.us`,
@@ -188,14 +191,16 @@ const createAppointmentBooking = async (
       });
       await verifyMessage(sentMessage, ticket, contact);
       await verifyMessage(sentMessage2, ticket, contact);
-      await delay(5000);
     })
     .catch(async function (error) {
+      chat.sendStateTyping();
       await delay(5000);
       const sentMessage = await wbot.sendMessage(
         `${contact.number}@c.us`,
         `*${ticket.queue.dialogflow.name}:* Houve algum erro, tente novamente mais tarde.`
       );
+      await delay(500);
+      chat.sendStateTyping();
       await delay(3000);
       const sentMessage2 = await wbot.sendMessage(
         `${contact.number}@c.us`,
@@ -208,7 +213,6 @@ const createAppointmentBooking = async (
         contactId: ticket.contact.id.toString(),
         setUseDialogFlow: { useDialogflow: true }
       });
-      await delay(5000);
     });
 };
 
@@ -216,6 +220,7 @@ const listServices = async (
   wbot: Session,
   ticket: Ticket,
   contact: Contact,
+  chat: Chat,
   unity: string | undefined
 ): Promise<void> => {
   const options = {
@@ -250,6 +255,7 @@ const listServices = async (
         sections,
         "Serviços disponíveis"
       );
+      chat.sendStateTyping();
       await delay(5000);
       const sentMessage = await wbot.sendMessage(
         `${contact.number}@c.us`,
@@ -264,11 +270,14 @@ const listServices = async (
       await delay(5000);
     })
     .catch(async function (error) {
+      chat.sendStateTyping();
       await delay(5000);
       const sentMessage = await wbot.sendMessage(
         `${contact.number}@c.us`,
         `*${ticket.queue.dialogflow.name}:* Houve algum erro, selecione outra unidade ou tente mais tarde.`
       );
+      await delay(500);
+      chat.sendStateTyping();
       await delay(3000);
       const sentMessage2 = await wbot.sendMessage(
         `${contact.number}@c.us`,
@@ -281,7 +290,6 @@ const listServices = async (
         contactId: ticket.contact.id.toString(),
         setUseDialogFlow: { useDialogflow: true }
       });
-      await delay(5000);
     });
 };
 
@@ -315,6 +323,7 @@ const listSlotsAvailable = async (
   wbot: Session,
   ticket: Ticket,
   contact: Contact,
+  chat: Chat,
   unity: string | undefined,
   service: string | undefined,
   start: string | undefined
@@ -405,6 +414,7 @@ const listSlotsAvailable = async (
         } else {
           dy = day;
         }
+        chat.sendStateTyping();
         await delay(5000);
         const sentMessage = await wbot.sendMessage(
           `${contact.number}@c.us`,
@@ -416,7 +426,6 @@ const listSlotsAvailable = async (
           contactId: ticket.contact.id.toString(),
           setUseDialogFlow: { useDialogflow: true }
         });
-        await delay(5000);
       } else {
         let sections = [
           {
@@ -430,6 +439,7 @@ const listSlotsAvailable = async (
           sections,
           "Horários disponíveis"
         );
+        chat.sendStateTyping();
         await delay(5000);
         const sentMessage = await wbot.sendMessage(
           `${contact.number}@c.us`,
@@ -441,15 +451,17 @@ const listSlotsAvailable = async (
           contactId: ticket.contact.id.toString(),
           setUseDialogFlow: { useDialogflow: true }
         });
-        await delay(5000);
       }
     })
     .catch(async function (error) {
+      chat.sendStateTyping();
       await delay(5000);
       const sentMessage = await wbot.sendMessage(
         `${contact.number}@c.us`,
         `*${ticket.queue.dialogflow.name}:* Houve algum erro, tente novamente mais tarde`
       );
+      await delay(500);
+      chat.sendStateTyping();
       await delay(3000);
       const sentMessage2 = await wbot.sendMessage(
         `${contact.number}@c.us`,
@@ -462,7 +474,6 @@ const listSlotsAvailable = async (
         contactId: ticket.contact.id.toString(),
         setUseDialogFlow: { useDialogflow: true }
       });
-      await delay(5000);
     });
 };
 
