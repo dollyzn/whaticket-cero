@@ -93,7 +93,10 @@ const verifyMediaMessage = async (
 
   if (!media.filename) {
     const ext = media.mimetype.split("/")[1].split(";")[0];
-    media.filename = `${msg.timestamp}.${ext}`;
+    media.filename = `${new Date().getTime()}.${ext}`;
+    if (msg.type === "ptt") {
+      media.filename = `${msg.timestamp}.${ext}`;
+    }
   }
 
   try {
