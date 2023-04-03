@@ -12,6 +12,7 @@ const rules = {
 			"user-modal:editQueues",
 			"ticket-options:deleteTicket",
 			"ticket-options:transferWhatsapp",
+			"ticket-options:transferUser",
 			"contacts-page:deleteContact",
 		],
 	},
