@@ -247,24 +247,67 @@ const verifyQueue = async (
       ticketId: ticket.id
     });
 
-    if (useoutServiceMessage && (hora < horainicio || hora > horaterminio)) {
-      const body = formatBody(`\u200e${outServiceMessage}`, contact);
+    if (queues[0].greetingMessage) {
+      if (useoutServiceMessage && (hora < horainicio || hora > horaterminio)) {
+        const body = formatBody(`\u200e${outServiceMessage}`, contact);
 
-      const sentMessage = await wbot.sendMessage(
-        `${contact.number}@c.us`,
-        body
-      );
+        const sentMessage = await wbot.sendMessage(
+          `${contact.number}@c.us`,
+          body
+        );
 
-      await verifyMessage(sentMessage, ticket, contact);
+        await verifyMessage(sentMessage, ticket, contact);
 
-      setTimeout(async () => {
-        await UpdateTicketService({
-          ticketId: ticket.id,
-          ticketData: { status: "closed" }
-        });
-      }, 1000);
-      return;
+        setTimeout(async () => {
+          await UpdateTicketService({
+            ticketId: ticket.id,
+            ticketData: { status: "closed" }
+          });
+        }, 1000);
+      } else {
+        const body = formatBody(`\u200e${queues[0].greetingMessage}`, contact);
+
+        const sentMessage = await wbot.sendMessage(
+          `${contact.number}@c.us`,
+          body
+        );
+
+        await verifyMessage(sentMessage, ticket, contact);
+      }
+    } else {
+      if (greetingMessage) {
+        if (
+          useoutServiceMessage &&
+          (hora < horainicio || hora > horaterminio)
+        ) {
+          const body = formatBody(`\u200e${outServiceMessage}`, contact);
+
+          const sentMessage = await wbot.sendMessage(
+            `${contact.number}@c.us`,
+            body
+          );
+
+          await verifyMessage(sentMessage, ticket, contact);
+
+          setTimeout(async () => {
+            await UpdateTicketService({
+              ticketId: ticket.id,
+              ticketData: { status: "closed" }
+            });
+          }, 1000);
+        } else {
+          const body = formatBody(`\u200e${greetingMessage}`, contact);
+
+          const sentMessage = await wbot.sendMessage(
+            `${contact.number}@c.us`,
+            body
+          );
+
+          await verifyMessage(sentMessage, ticket, contact);
+        }
+      }
     }
+
     return;
   }
 
