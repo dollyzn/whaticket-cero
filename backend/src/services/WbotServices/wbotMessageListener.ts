@@ -611,63 +611,53 @@ async function sendDelayedMessages(
   }
 
   if (createBooking?.email.stringValue) {
-    const booking = createBooking.booking?.stringValue
-      ? createBooking.booking.stringValue
-      : undefined;
-    const unity = createBooking.unity?.stringValue
-      ? createBooking.unity.stringValue
-      : undefined;
-    const service = createBooking.service?.stringValue
-      ? createBooking.service?.stringValue
-      : undefined;
-    const name = createBooking.name?.stringValue
-      ? createBooking.name.stringValue
-      : undefined;
-    const email = createBooking.email?.stringValue
-      ? createBooking.email.stringValue
-      : undefined;
-    const date = createBooking.start?.stringValue
-      ? createBooking.start.stringValue
-      : undefined;
-    const previous = createBooking.previous?.stringValue
-      ? createBooking.previous?.stringValue
-      : undefined;
-    const unityName = createBooking.unityName?.stringValue
-      ? createBooking.unityName?.stringValue
-      : undefined;
+    const booking = createBooking.booking?.stringValue ?? undefined;
+    const unity = createBooking.unity?.stringValue ?? undefined;
+    const service = createBooking.service?.stringValue ?? undefined;
+    const name = createBooking.name?.stringValue ?? undefined;
+    const email = createBooking.email?.stringValue ?? undefined;
+    const date = createBooking.start?.stringValue ?? undefined;
+    const previous = createBooking.previous?.stringValue ?? undefined;
+    const unityName = createBooking.unityName?.stringValue ?? undefined;
 
     await ToggleUseDialogflowService({
       contactId: ticket.contact.id.toString(),
       setUseDialogFlow: { useDialogflow: false }
     });
-    if (booking === "service") {
-      await listServices(wbot, ticket, contact, chat, unity);
-    }
-    if (booking === "timeSlot") {
-      await listSlotsAvailable(
-        wbot,
-        ticket,
-        contact,
-        chat,
-        unity,
-        service,
-        date
-      );
-    }
-    if (booking === "createBooking") {
-      await createAppointmentBooking(
-        wbot,
-        ticket,
-        contact,
-        chat,
-        unity,
-        service,
-        name,
-        date,
-        previous,
-        email,
-        unityName
-      );
+
+    switch (booking) {
+      case "service":
+        await listServices(wbot, ticket, contact, chat, unity);
+        break;
+      case "timeSlot":
+        await listSlotsAvailable(
+          wbot,
+          ticket,
+          contact,
+          chat,
+          unity,
+          service,
+          date
+        );
+        break;
+      case "createBooking":
+        await createAppointmentBooking(
+          wbot,
+          ticket,
+          contact,
+          chat,
+          unity,
+          service,
+          name,
+          date,
+          previous,
+          email,
+          unityName
+        );
+        break;
+      default:
+        // nothing
+        break;
     }
   }
 
