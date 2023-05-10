@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import { Card, Button } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
@@ -24,6 +24,19 @@ const TicketHeader = ({ loading, children }) => {
   const handleBack = () => {
     history.push("/tickets");
   };
+
+  const handleKeyDown = (event) => {
+    if (event.keyCode === 27) {
+      handleBack();
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
 
   return (
     <>
