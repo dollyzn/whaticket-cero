@@ -241,6 +241,10 @@ const verifyQueue = async (
   const ssterminio = Number(terminio.split(":")[2]);
   const horaterminio = hhterminio + mmterminio + ssterminio;
 
+  if (!contact.useQueues) {
+    return;
+  }
+
   if (queues.length === 1) {
     await UpdateTicketService({
       ticketData: { queueId: queues[0].id },
@@ -308,10 +312,6 @@ const verifyQueue = async (
       }
     }
 
-    return;
-  }
-
-  if (!contact.useQueues) {
     return;
   }
 
