@@ -41,8 +41,8 @@ const ModalImageCors = ({ imageUrl }) => {
 			className={classes.messageMedia}
 			smallSrcSet={fetching ? imageUrl : blobUrl}
 			medium={fetching ? imageUrl : blobUrl}
-			large={fetching ? imageUrl : blobUrl}
-                        showRotate="true"
+			large={fetching ? imageUrl : blobUrl} 
+            showRotate="true"
 			alt="image"
 		/>
 	);
