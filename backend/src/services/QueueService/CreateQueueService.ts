@@ -4,12 +4,13 @@ import Queue from "../../models/Queue";
 
 interface QueueData {
   name: string;
+  menuname: string;
   color: string;
   greetingMessage?: string;
 }
 
 const CreateQueueService = async (queueData: QueueData): Promise<Queue> => {
-  const { color, name } = queueData;
+  const { color, name, menuname } = queueData;
 
   const queueSchema = Yup.object().shape({
     name: Yup.string()
@@ -29,6 +30,9 @@ const CreateQueueService = async (queueData: QueueData): Promise<Queue> => {
           return false;
         }
       ),
+    menuname: Yup.string()
+      .min(2, "ERR_QUEUE_INVALID_NAME")
+      .required("ERR_QUEUE_INVALID_NAME"),
     color: Yup.string()
       .required("ERR_QUEUE_INVALID_COLOR")
       .test("Check-color", "ERR_QUEUE_INVALID_COLOR", async value => {
@@ -54,7 +58,7 @@ const CreateQueueService = async (queueData: QueueData): Promise<Queue> => {
   });
 
   try {
-    await queueSchema.validate({ color, name });
+    await queueSchema.validate({ color, name, menuname });
   } catch (err) {
     throw new AppError(err.message);
   }

@@ -67,6 +67,10 @@ const QueueSchema = Yup.object().shape({
     .min(2, "Too Short!")
     .max(50, "Too Long!")
     .required("Required"),
+  menuname: Yup.string()
+    .min(2, "Too Short!")
+    .max(50, "Too Long!")
+    .required("Required"),
   color: Yup.string().min(3, "Too Short!").max(9, "Too Long!").required(),
   greetingMessage: Yup.string(),
   dialogflowId: Yup.number(),
@@ -77,6 +81,7 @@ const QueueModal = ({ open, onClose, queueId }) => {
 
   const initialState = {
     name: "",
+    menuname: "",
     color: "",
     greetingMessage: "",
     dialogflowId: "",
@@ -109,6 +114,7 @@ const QueueModal = ({ open, onClose, queueId }) => {
     return () => {
       setQueue({
         name: "",
+        menuname: "",
         color: "",
         greetingMessage: "",
         dialogflowId: "",
@@ -213,6 +219,16 @@ const QueueModal = ({ open, onClose, queueId }) => {
                   }}
                   variant="outlined"
                   margin="dense"
+                />
+                <Field
+                  as={TextField}
+                  label={i18n.t("queueModal.form.menuname")}
+                  name="menuname"
+                  error={touched.menuname && Boolean(errors.menuname)}
+                  helperText={touched.menuname && errors.menuname}
+                  variant="outlined"
+                  margin="dense"
+                  className={classes.textField}
                 />
                 <ColorPicker
                   open={colorPickerModalOpen}

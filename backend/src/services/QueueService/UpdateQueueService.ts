@@ -6,6 +6,7 @@ import ShowQueueService from "./ShowQueueService";
 
 interface QueueData {
   name?: string;
+  menuname?: string;
   color?: string;
   greetingMessage?: string;
 }
@@ -14,7 +15,7 @@ const UpdateQueueService = async (
   queueId: number | string,
   queueData: QueueData
 ): Promise<Queue> => {
-  const { color, name } = queueData;
+  const { color, name, menuname } = queueData;
 
   const queueSchema = Yup.object().shape({
     name: Yup.string()
@@ -33,6 +34,9 @@ const UpdateQueueService = async (
           return true;
         }
       ),
+    menuname: Yup.string()
+      .min(2, "ERR_QUEUE_INVALID_NAME")
+      .required("ERR_QUEUE_INVALID_NAME"),
     color: Yup.string()
       .required("ERR_QUEUE_INVALID_COLOR")
       .test("Check-color", "ERR_QUEUE_INVALID_COLOR", async value => {
@@ -58,7 +62,7 @@ const UpdateQueueService = async (
   });
 
   try {
-    await queueSchema.validate({ color, name });
+    await queueSchema.validate({ color, name, menuname });
   } catch (err) {
     throw new AppError(err.message);
   }

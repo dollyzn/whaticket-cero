@@ -352,7 +352,7 @@ const verifyQueue = async (
     let options = "";
 
     queues.forEach((queue, index) => {
-      options += `*${index + 1}* - ${queue.name}\n`;
+      options += `*${index + 1}* - ${queue.menuname}\n`;
     });
 
     if (useoutServiceMessage && (hora < horainicio || hora > horaterminio)) {

@@ -197,6 +197,7 @@ const messages = {
         },
         form: {
           name: "Nombre",
+          menuname: "Nombre en el menú",
           color: "Color",
           dialogflow: "Dialogflow",
           greetingMessage: "Mensaje de saludo",
