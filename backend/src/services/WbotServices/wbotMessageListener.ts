@@ -127,19 +127,11 @@ const verifyMediaMessage = async (
   }
 
   if (msg.type === "video") {
-    if (msg.body) {
-      msg.body = `🎥 ${msg.body}`;
-    } else {
-      msg.body = "🎥 Vídeo";
-    }
+    msg.body = msg.body ? `🎥 ${msg.body}` : "🎥 Vídeo";
   }
 
   if (msg.type === "image") {
-    if (msg.body) {
-      msg.body = `📷 ${msg.body}`;
-    } else {
-      msg.body = "📷 Foto";
-    }
+    msg.body = msg.body ? `📷 ${msg.body}` : "📷 Foto";
   }
 
   if (msg.type === "document") {
@@ -317,12 +309,6 @@ const verifyQueue = async (
 
   let selectedOption = msg.body;
 
-  if (msg.body.toUpperCase() == "SOU PACIENTE") {
-    selectedOption = "1";
-  } else if (msg.body.toUpperCase() == "SOU DENTISTA") {
-    selectedOption = "2";
-  }
-
   const choosenQueue = queues[+selectedOption - 1];
 
   if (choosenQueue) {
@@ -354,54 +340,19 @@ const verifyQueue = async (
           contact
         );
 
-        if (choosenQueue === queues[0]) {
-          try {
-            let button = new Buttons(body, [
-              { body: "Sim", id: "startAtendanceYes" },
-              { body: "Não", id: "startAtendanceNo" }
-            ]);
+        const sentMessage = await wbot.sendMessage(
+          `${contact.number}@c.us`,
+          body
+        );
 
-            const sentMessage = await wbot.sendMessage(
-              `${contact.number}@c.us`,
-              button
-            );
-
-            await verifyMessage(sentMessage, ticket, contact);
-          } catch {
-            const sentMessage = await wbot.sendMessage(
-              `${contact.number}@c.us`,
-              body
-            );
-
-            await verifyMessage(sentMessage, ticket, contact);
-          }
-        } else {
-          const sentMessage = await wbot.sendMessage(
-            `${contact.number}@c.us`,
-            body
-          );
-
-          await verifyMessage(sentMessage, ticket, contact);
-        }
+        await verifyMessage(sentMessage, ticket, contact);
       }
     }
   } else {
     let options = "";
 
     queues.forEach((queue, index) => {
-      let queuename;
-
-      if (queue.name.substring(0, 6) == "Fila 1") {
-        queuename = "Sou PACIENTE";
-      } else if (queue.name.substring(0, 6) == "Fila 2") {
-        queuename = "Sou DENTISTA";
-      } else if (queue.name.substring(0, 6) == "Fila 3") {
-        queuename = "Comprovantes e Requisições";
-      } else {
-        queuename = "Nome indefinido (backend)";
-      }
-
-      options += `*${index + 1}* - ${queuename}\n`;
+      options += `*${index + 1}* - ${queue.name}\n`;
     });
 
     if (useoutServiceMessage && (hora < horainicio || hora > horaterminio)) {
@@ -430,41 +381,19 @@ const verifyQueue = async (
     } else {
       const body = formatBody(`\u200e${greetingMessage}\n${options}`, contact);
 
-      try {
-        let button = new Buttons(
-          greetingMessage,
-          [{ body: "Sou Paciente" }, { body: "Sou Dentista" }],
-          "Olá, seja bem-vindo!"
-        );
+      const debouncedSentMessage = debounce(
+        async () => {
+          const sentMessage = await wbot.sendMessage(
+            `${contact.number}@c.us`,
+            body
+          );
+          verifyMessage(sentMessage, ticket, contact);
+        },
+        3000,
+        ticket.id
+      );
 
-        const debouncedSentMessage = debounce(
-          async () => {
-            const sentMessage = await wbot.sendMessage(
-              `${contact.number}@c.us`,
-              button
-            );
-            verifyMessage(sentMessage, ticket, contact);
-          },
-          3000,
-          ticket.id
-        );
-
-        debouncedSentMessage();
-      } catch {
-        const debouncedSentMessage = debounce(
-          async () => {
-            const sentMessage = await wbot.sendMessage(
-              `${contact.number}@c.us`,
-              body
-            );
-            verifyMessage(sentMessage, ticket, contact);
-          },
-          3000,
-          ticket.id
-        );
-
-        debouncedSentMessage();
-      }
+      debouncedSentMessage();
     }
   }
 };
