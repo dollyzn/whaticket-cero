@@ -34,12 +34,6 @@ import { queryDialogFlow } from "../DialogflowServices/QueryDialogflow";
 import { createDialogflowSessionWithModel } from "../DialogflowServices/CreateSessionDialogflow";
 import ListSettingsServiceOne from "../SettingServices/ListSettingsServiceOne";
 import ToggleUseDialogflowService from "../ContactServices/ToggleUseDialogflowContactService";
-import { Lists, Button, Booking } from "../../@types/dialogparams";
-import {
-  createAppointmentBooking,
-  listSlotsAvailable,
-  listServices
-} from "./ReservioApiRequests";
 
 interface Session extends Client {
   id?: number;
@@ -444,7 +438,7 @@ const sendDialogflowAwswer = async (
     await delay(3000);
     const sentMessage = await wbot.sendMessage(
       `${contact.number}@c.us`,
-      `*${ticket.queue.dialogflow.name}:* 🤔 Não consegui entender`
+      `*${ticket.queue.dialogflow.name}:* Não consegui entender sua dúvida.`
     );
 
     await verifyMessage(sentMessage, ticket, contact);
@@ -458,30 +452,11 @@ const sendDialogflowAwswer = async (
     });
   }
 
-  const image = dialogFlowReply.parameters.image
-    ? dialogFlowReply.parameters.image.stringValue
-    : undefined;
+  const image = dialogFlowReply.parameters.image?.stringValue ?? undefined;
 
-  //limited to 3 itens
-  const button = dialogFlowReply.parameters.button1
-    ? dialogFlowReply.parameters
-    : undefined;
+  const react = dialogFlowReply.parameters.react?.stringValue ?? undefined;
 
-  const booking = dialogFlowReply.parameters.booking
-    ? dialogFlowReply.parameters
-    : undefined;
-
-  //limited to 10 itens
-  const list = dialogFlowReply.parameters.option1
-    ? dialogFlowReply.parameters
-    : undefined;
-
-  const react = dialogFlowReply.parameters.react?.stringValue
-    ? dialogFlowReply.parameters.react.stringValue
-    : undefined;
-
-  let base64EncodedAudio = dialogFlowReply.encodedAudio.toString("base64");
-  const audio = base64EncodedAudio ? base64EncodedAudio : undefined;
+  const audio = dialogFlowReply.encodedAudio.toString("base64") ?? undefined;
 
   chat.sendStateTyping();
   await delay(3000);
@@ -501,9 +476,6 @@ const sendDialogflowAwswer = async (
       message.text.text[0],
       lastMessage,
       image,
-      button,
-      booking,
-      list,
       audio,
       react
     );
@@ -519,9 +491,6 @@ async function sendDelayedMessages(
   message: string,
   lastMessage: string,
   sendImage: string | undefined,
-  sendButtonMessage: Button | undefined,
-  createBooking: Booking | undefined,
-  sendListMessage: Lists | undefined,
   audio: string | undefined,
   react: string | undefined
 ) {
@@ -539,141 +508,20 @@ async function sendDelayedMessages(
     }
   }
 
-  if (createBooking?.email.stringValue) {
-    const booking = createBooking.booking?.stringValue ?? undefined;
-    const unity = createBooking.unity?.stringValue ?? undefined;
-    const service = createBooking.service?.stringValue ?? undefined;
-    const name = createBooking.name?.stringValue ?? undefined;
-    const email = createBooking.email?.stringValue ?? undefined;
-    const date = createBooking.start?.stringValue ?? undefined;
-    const previous = createBooking.previous?.stringValue ?? undefined;
-    const unityName = createBooking.unityName?.stringValue ?? undefined;
+  const sentMessage = await wbot.sendMessage(
+    `${contact.number}@c.us`,
+    `*${ticket.queue.dialogflow.name}:* ` + message
+  );
 
-    await ToggleUseDialogflowService({
-      contactId: ticket.contact.id.toString(),
-      setUseDialogFlow: { useDialogflow: false }
-    });
-
-    switch (booking) {
-      case "service":
-        await listServices(wbot, ticket, contact, chat, unity);
-        break;
-      case "timeSlot":
-        await listSlotsAvailable(
-          wbot,
-          ticket,
-          contact,
-          chat,
-          unity,
-          service,
-          date
-        );
-        break;
-      case "createBooking":
-        await createAppointmentBooking(
-          wbot,
-          ticket,
-          contact,
-          chat,
-          unity,
-          service,
-          name,
-          date,
-          previous,
-          email,
-          unityName
-        );
-        break;
-      default:
-        // nothing
-        break;
-    }
+  await verifyMessage(sentMessage, ticket, contact);
+  if (message != lastMessage) {
+    await delay(500);
+    chat.sendStateTyping();
+  } else if (audio) {
+    await delay(500);
+    chat.sendStateRecording();
   }
-
-  if (sendButtonMessage && message === lastMessage) {
-    let options;
-    function listButtonOptions(objButton: any) {
-      let i = 0;
-      let options = [];
-
-      for (let opt in objButton) {
-        options[i] = { body: objButton[opt].stringValue };
-        i++;
-      }
-
-      return options;
-    }
-
-    options = listButtonOptions(sendButtonMessage);
-
-    let button = new Buttons(
-      `*${ticket.queue.dialogflow.name}:* ${message}`,
-      options
-    );
-
-    const sentMessage = await wbot.sendMessage(
-      `${contact.number}@c.us`,
-      button
-    );
-
-    await verifyMessage(sentMessage, ticket, contact);
-    if (audio) {
-      await delay(500);
-      chat.sendStateRecording();
-      await delay(5000);
-    }
-  } else if (sendListMessage && message === lastMessage) {
-    let options;
-
-    function listOptions(listObj: any) {
-      let i = 0;
-      let options = [];
-      for (let opt in listObj) {
-        options[i] = { title: listObj[opt].stringValue };
-        i++;
-      }
-      return options;
-    }
-
-    options = listOptions(sendListMessage);
-
-    let sections = [
-      {
-        title: "Opções",
-        rows: options
-      }
-    ];
-
-    let list = new List(
-      `*${ticket.queue.dialogflow.name}:* ` + message,
-      "Clique aqui",
-      sections
-    );
-
-    const sentMessage = await wbot.sendMessage(`${contact.number}@c.us`, list);
-
-    await verifyMessage(sentMessage, ticket, contact);
-    if (audio) {
-      await delay(500);
-      chat.sendStateRecording();
-      await delay(5000);
-    }
-  } else {
-    const sentMessage = await wbot.sendMessage(
-      `${contact.number}@c.us`,
-      `*${ticket.queue.dialogflow.name}:* ` + message
-    );
-
-    await verifyMessage(sentMessage, ticket, contact);
-    if (message != lastMessage) {
-      await delay(500);
-      chat.sendStateTyping();
-    } else if (audio) {
-      await delay(500);
-      chat.sendStateRecording();
-    }
-    await delay(5000);
-  }
+  await delay(5000);
 
   if (audio && message === lastMessage) {
     const newMedia = new MessageMedia("audio/ogg", audio);
