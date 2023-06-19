@@ -467,18 +467,20 @@ const sendDialogflowAwswer = async (
     lastMessage = message.text?.text[0] ? message.text.text[0] : lastMessage;
   }
   for (let message of dialogFlowReply.responses) {
-    await sendDelayedMessages(
-      wbot,
-      ticket,
-      contact,
-      msg,
-      chat,
-      message.text.text[0],
-      lastMessage,
-      image,
-      audio,
-      react
-    );
+    if (message.text) {
+      await sendDelayedMessages(
+        wbot,
+        ticket,
+        contact,
+        msg,
+        chat,
+        message.text.text[0],
+        lastMessage,
+        image,
+        audio,
+        react
+      );
+    }
   }
 };
 
