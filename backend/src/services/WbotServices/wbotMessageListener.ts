@@ -464,7 +464,7 @@ const sendDialogflowAwswer = async (
   let lastMessage;
 
   for (let message of dialogFlowReply.responses) {
-    lastMessage = message.text.text[0] ? message.text.text[0] : lastMessage;
+    lastMessage = message.text?.text[0] ? message.text.text[0] : lastMessage;
   }
   for (let message of dialogFlowReply.responses) {
     await sendDelayedMessages(
