@@ -43,23 +43,29 @@ export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
         sessionCfg = JSON.parse(whatsapp.session);
       }
 
-      const args:String = process.env.CHROME_ARGS || "";
+      const args: String = process.env.CHROME_ARGS || "";
 
       const wbot: Session = new Client({
+        webVersion: "2.2409.2",
+        webVersionCache: {
+          type: "remote",
+          remotePath:
+            "https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2409.2.html"
+        },
         session: sessionCfg,
-        authStrategy: new LocalAuth({clientId: 'bd_'+whatsapp.id}),
+        authStrategy: new LocalAuth({ clientId: "bd_" + whatsapp.id }),
         puppeteer: {
           executablePath: process.env.CHROME_BIN || undefined,
           // @ts-ignore
           browserWSEndpoint: process.env.CHROME_WS || undefined,
-          args: args.split(' ')
+          args: args.split(" ")
         }
       });
 
       wbot.initialize();
 
       wbot.on("qr", async qr => {
-        logger.info("Session:", sessionName);
+        logger.info(`Session: ${sessionName}`);
         qrCode.generate(qr, { small: true });
         await whatsapp.update({ qrcode: qr, status: "qrcode", retries: 0 });
 
@@ -73,6 +79,25 @@ export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
           action: "update",
           session: whatsapp
         });
+      });
+
+      wbot.on("loading_screen", async (percent, message) => {
+        logger.info(`LOADING: Session: ${sessionName}, ${percent}, ${message}`);
+
+        await whatsapp.update({
+          status: "OPENING",
+          qrcode: "",
+          retries: 0
+        });
+
+        io.emit("whatsappSession", {
+          action: "update",
+          session: whatsapp
+        });
+      });
+
+      wbot.on("disconnected", reason => {
+        logger.info(`DISCONECTED: Session: ${sessionName} Reason: ${reason}`);
       });
 
       wbot.on("authenticated", async session => {
