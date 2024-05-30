@@ -107,6 +107,8 @@ const messages = {
         form: {
           name: "Name",
           default: "Default",
+          number: "Number",
+          requestCode: "Request Pairing Code",
           useoutServiceMessage: "Message",
           farewellMessage: "Farewell message",
           outServiceMessage: "Out-of-hours message",
@@ -123,6 +125,11 @@ const messages = {
       },
       qrCode: {
         message: "Read QrCode to start the session",
+      },
+      pairingCode: {
+        message: "Or use the pairing code",
+        number: "Number",
+        code: "Code",
       },
       contacts: {
         title: "Contacts",

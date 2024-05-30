@@ -75,6 +75,7 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
   const classes = useStyles();
   const initialState = {
     name: "",
+    number: "",
     greetingMessage: "",
     farewellMessage: "",
     outServiceMessage: "",
@@ -83,6 +84,7 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
     closingHours: "",
     useoutServiceMessage: false,
     isDefault: false,
+    requestCode: false,
   };
   const [whatsApp, setWhatsApp] = useState(initialState);
   const [selectedQueueIds, setSelectedQueueIds] = useState([]);
@@ -175,6 +177,30 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                       />
                     }
                     label={i18n.t("whatsappModal.form.default")}
+                  />
+                </div>
+                <div className={classes.multFieldLine}>
+                  <Field
+                    as={TextField}
+                    label={i18n.t("whatsappModal.form.number")}
+                    name="number"
+                    error={touched.number && Boolean(errors.number)}
+                    helperText={touched.number && errors.number}
+                    variant="outlined"
+                    margin="dense"
+                    className={classes.textField}
+                    disabled={!values.requestCode}
+                  />
+                  <FormControlLabel
+                    control={
+                      <Field
+                        as={Switch}
+                        color="primary"
+                        name="requestCode"
+                        checked={values.requestCode}
+                      />
+                    }
+                    label={i18n.t("whatsappModal.form.requestCode")}
                   />
                 </div>
                 <div>

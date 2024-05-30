@@ -109,6 +109,8 @@ const messages = {
         form: {
           name: "Nombre",
           default: "Por Defecto",
+          number: "Número",
+          requestCode: "Requerir Código de Emparejamiento",
           useoutServiceMessage: "Mensaje",
           farewellMessage: "Mensaje de despedida",
           outServiceMessage: "Mensaje fuera de horario",
@@ -125,6 +127,11 @@ const messages = {
       },
       qrCode: {
         message: "Lée el código QR para empezar la sesión.",
+      },
+      pairingCode: {
+        message: "O utiliza el código de emparejamiento",
+        number: "Número",
+        code: "Código",
       },
       contacts: {
         title: "Contactos",
