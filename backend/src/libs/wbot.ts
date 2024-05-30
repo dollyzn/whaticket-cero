@@ -37,6 +37,8 @@ export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
     try {
       const io = getIO();
       const sessionName = whatsapp.name;
+      const requestPairingCode = whatsapp.requestCode;
+      const targetPhoneNumber = whatsapp.number;
       let sessionCfg;
 
       if (whatsapp && whatsapp.session) {
@@ -62,12 +64,26 @@ export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
         }
       });
 
-      wbot.initialize();
+      wbot.initialize().catch(_ => _);
 
+      let pairingCodeRequested = false;
       wbot.on("qr", async qr => {
         logger.info(`Session: ${sessionName}`);
         qrCode.generate(qr, { small: true });
         await whatsapp.update({ qrcode: qr, status: "qrcode", retries: 0 });
+
+        if (requestPairingCode && !pairingCodeRequested) {
+          const pairingCode = await wbot.requestPairingCode(targetPhoneNumber);
+          await whatsapp.update({
+            pairingCode: pairingCode,
+            status: "qrcode",
+            retries: 0
+          });
+          logger.info(
+            `Pairing code enabled. Session: ${sessionName} Code: ${pairingCode}`
+          );
+          pairingCodeRequested = true;
+        }
 
         const sessionIndex = sessions.findIndex(s => s.id === whatsapp.id);
         if (sessionIndex === -1) {
@@ -96,15 +112,19 @@ export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
         });
       });
 
-      wbot.on("disconnected", reason => {
+      wbot.on("disconnected", async reason => {
         logger.info(`DISCONECTED: Session: ${sessionName} Reason: ${reason}`);
       });
 
       wbot.on("authenticated", async session => {
+        pairingCodeRequested = false;
+
         logger.info(`Session: ${sessionName} AUTHENTICATED`);
       });
 
       wbot.on("auth_failure", async msg => {
+        pairingCodeRequested = false;
+
         console.error(
           `Session: ${sessionName} AUTHENTICATION FAILURE! Reason: ${msg}`
         );
@@ -128,6 +148,8 @@ export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
       });
 
       wbot.on("ready", async () => {
+        pairingCodeRequested = false;
+
         logger.info(`Session: ${sessionName} READY`);
 
         await whatsapp.update({
@@ -153,7 +175,11 @@ export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
         resolve(wbot);
       });
     } catch (err) {
-      logger.error(err);
+      let errorMessage = "Failed to do something exceptional";
+      if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+      logger.error(errorMessage);
     }
   });
 };
@@ -167,14 +193,20 @@ export const getWbot = (whatsappId: number): Session => {
   return sessions[sessionIndex];
 };
 
-export const removeWbot = (whatsappId: number): void => {
+export const removeWbot = async (whatsappId: number): Promise<void> => {
   try {
     const sessionIndex = sessions.findIndex(s => s.id === whatsappId);
     if (sessionIndex !== -1) {
-      sessions[sessionIndex].destroy();
+      await sessions[sessionIndex].logout();
+      await sessions[sessionIndex].destroy();
+      await sessions[sessionIndex].initialize();
       sessions.splice(sessionIndex, 1);
     }
   } catch (err) {
-    logger.error(err);
+    let errorMessage = "Failed to do something exceptional";
+    if (err instanceof Error) {
+      errorMessage = err.message;
+    }
+    logger.error(errorMessage);
   }
 };

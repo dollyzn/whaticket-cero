@@ -30,10 +30,16 @@ class Whatsapp extends Model<Whatsapp> {
   name: string;
 
   @Column(DataType.TEXT)
+  number: string;
+
+  @Column(DataType.TEXT)
   session: string;
 
   @Column(DataType.TEXT)
   qrcode: string;
+
+  @Column(DataType.STRING)
+  pairingCode: string;
 
   @Column
   status: string;
@@ -69,6 +75,10 @@ class Whatsapp extends Model<Whatsapp> {
   @AllowNull
   @Column
   isDefault: boolean;
+
+  @Default(false)
+  @Column(DataType.BOOLEAN)
+  requestCode: boolean;
 
   @Default(false)
   @AllowNull

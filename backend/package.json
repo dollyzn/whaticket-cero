@@ -36,6 +36,7 @@
     "pg": "^8.4.1",
     "pino": "^6.9.0",
     "pino-pretty": "~4.7.1",
+    "puppeteer": "^22.6.4",
     "qrcode-terminal": "^0.12.0",
     "reflect-metadata": "^0.1.13",
     "sequelize": "^5.22.3",

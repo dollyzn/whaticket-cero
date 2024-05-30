@@ -8,9 +8,11 @@ import AssociateWhatsappQueue from "./AssociateWhatsappQueue";
 
 interface WhatsappData {
   name?: string;
+  number?: string;
   status?: string;
   session?: string;
   isDefault?: boolean;
+  requestCode?: boolean;
   useoutServiceMessage?: boolean;
   greetingMessage?: string;
   farewellMessage?: string;
@@ -43,8 +45,10 @@ const UpdateWhatsAppService = async ({
 
   const {
     name,
+    number,
     status,
     isDefault,
+    requestCode,
     useoutServiceMessage,
     session,
     greetingMessage,
@@ -59,7 +63,11 @@ const UpdateWhatsAppService = async ({
   try {
     await schema.validate({ name, status, isDefault });
   } catch (err) {
-    throw new AppError(err.message);
+    let errorMessage = "Failed to do something exceptional";
+    if (err instanceof Error) {
+      errorMessage = err.message;
+    }
+    throw new AppError(errorMessage);
   }
 
   if (queueIds.length > 1 && !greetingMessage) {
@@ -81,6 +89,7 @@ const UpdateWhatsAppService = async ({
 
   await whatsapp.update({
     name,
+    number,
     status,
     session,
     greetingMessage,
@@ -90,6 +99,7 @@ const UpdateWhatsAppService = async ({
     closingHours,
     useoutServiceMessage,
     isDefault,
+    requestCode,
     feedbackMessage
   });
 

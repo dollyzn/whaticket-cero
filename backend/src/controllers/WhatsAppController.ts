@@ -13,6 +13,8 @@ import AppError from "../errors/AppError";
 
 interface WhatsappData {
   name: string;
+  number: string;
+  requestCode: boolean;
   queueIds: number[];
   greetingMessage?: string;
   farewellMessage?: string;
@@ -34,6 +36,8 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
 export const store = async (req: Request, res: Response): Promise<Response> => {
   const {
     name,
+    number,
+    requestCode,
     status,
     isDefault,
     useoutServiceMessage,
@@ -48,6 +52,8 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
 
   const { whatsapp, oldDefaultWhatsapp } = await CreateWhatsAppService({
     name,
+    number,
+    requestCode,
     status,
     isDefault,
     useoutServiceMessage,

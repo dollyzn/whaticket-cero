@@ -6,6 +6,8 @@ import AssociateWhatsappQueue from "./AssociateWhatsappQueue";
 
 interface Request {
   name: string;
+  number: string;
+  requestCode: boolean;
   queueIds?: number[];
   greetingMessage?: string;
   farewellMessage?: string;
@@ -25,6 +27,8 @@ interface Response {
 
 const CreateWhatsAppService = async ({
   name,
+  number,
+  requestCode,
   status = "OPENING",
   queueIds = [],
   greetingMessage,
@@ -57,7 +61,11 @@ const CreateWhatsAppService = async ({
   try {
     await schema.validate({ name, status, isDefault });
   } catch (err) {
-    throw new AppError(err.message);
+    let errorMessage = "Failed to do something exceptional";
+    if (err instanceof Error) {
+      errorMessage = err.message;
+    }
+    throw new AppError(errorMessage);
   }
 
   const whatsappFound = await Whatsapp.findOne();
@@ -82,6 +90,8 @@ const CreateWhatsAppService = async ({
   const whatsapp = await Whatsapp.create(
     {
       name,
+      number,
+      requestCode,
       status,
       greetingMessage,
       farewellMessage,
