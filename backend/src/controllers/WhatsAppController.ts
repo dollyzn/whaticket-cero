@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { getIO } from "../libs/socket";
-import { removeWbot } from "../libs/wbot";
+import { removeWbot, requestPairCode } from "../libs/wbot";
 import { StartWhatsAppSession } from "../services/WbotServices/StartWhatsAppSession";
 
 import CreateWhatsAppService from "../services/WhatsappService/CreateWhatsAppService";
@@ -104,6 +104,12 @@ export const update = async (
     whatsappId
   });
 
+  if (whatsapp.requestCode && !!whatsapp.number) {
+    await requestPairCode(whatsapp);
+  } else {
+    await whatsapp.update({ pairingCode: "" });
+  }
+
   const io = getIO();
   io.emit("whatsapp", {
     action: "update",
@@ -131,7 +137,7 @@ export const remove = async (
   const { whatsappId } = req.params;
 
   await DeleteWhatsAppService(whatsappId);
-  removeWbot(+whatsappId);
+  removeWbot(+whatsappId, true);
 
   const io = getIO();
   io.emit("whatsapp", {

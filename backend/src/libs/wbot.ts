@@ -103,6 +103,7 @@ export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
         await whatsapp.update({
           status: "OPENING",
           qrcode: "",
+          pairingCode: "",
           retries: 0
         });
 
@@ -155,6 +156,7 @@ export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
         await whatsapp.update({
           status: "CONNECTED",
           qrcode: "",
+          pairingCode: "",
           retries: 0
         });
 
@@ -184,6 +186,28 @@ export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
   });
 };
 
+export const requestPairCode = async (whatsapp: Whatsapp): Promise<void> => {
+  const sessionIndex = sessions.findIndex(s => s.id === whatsapp.id);
+
+  if (sessionIndex !== -1) {
+    const pairingCode = await sessions[sessionIndex].requestPairingCode(
+      whatsapp.number
+    );
+    await whatsapp.update({
+      number: whatsapp.number,
+      pairingCode: pairingCode,
+      status: "qrcode",
+      retries: 0
+    });
+
+    logger.info(
+      `Request Pairing Code. Session: ${whatsapp.name} Code: ${pairingCode}`
+    );
+  } else {
+    throw new AppError("ERR_WAPP_NOT_INITIALIZED");
+  }
+};
+
 export const getWbot = (whatsappId: number): Session => {
   const sessionIndex = sessions.findIndex(s => s.id === whatsappId);
 
@@ -193,13 +217,26 @@ export const getWbot = (whatsappId: number): Session => {
   return sessions[sessionIndex];
 };
 
-export const removeWbot = async (whatsappId: number): Promise<void> => {
+export const removeWbot = async (
+  whatsappId: number,
+  destroy?: boolean
+): Promise<void> => {
   try {
     const sessionIndex = sessions.findIndex(s => s.id === whatsappId);
     if (sessionIndex !== -1) {
-      await sessions[sessionIndex].logout();
-      await sessions[sessionIndex].destroy();
-      await sessions[sessionIndex].initialize();
+      if (destroy) {
+        await sessions[sessionIndex].destroy();
+      } else {
+        await sessions[sessionIndex].logout();
+        await sessions[sessionIndex].initialize();
+
+        const whatsapp = await Whatsapp.findByPk(whatsappId);
+        if (whatsapp?.requestCode && !!whatsapp?.number) {
+          await requestPairCode(whatsapp);
+        } else if (whatsapp) {
+          await whatsapp.update({ pairingCode: "" });
+        }
+      }
       sessions.splice(sessionIndex, 1);
     }
   } catch (err) {
